@@ -26,8 +26,8 @@ def create_web_view(proxyip, port):
         chromeOption.add_argument(f"--proxy-server={_proxy}")
         chromeOption.add_argument("--no-sandbox")
         chromeOption.add_argument("--disable-dev-shm-usage")
-        file_path = os.path.join(os.getcwd(), "pro.zip")
-        chromeOption.add_extension(file_path)
+        # file_path = os.path.join(os.getcwd(), "pro.zip")
+        # chromeOption.add_extension(file_path)
         print("等待启动")
         chrome = webdriver.Chrome(
             service=service, options=chromeOption, keep_alive=True
