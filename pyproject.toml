@@ -1,0 +1,15 @@
+[project]
+name = "claude-dev"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "black>=25.1.0",
+    "bs4>=0.0.2",
+    "dotenv>=0.9.9",
+    "kdl>=0.2.21",
+    "requests>=2.32.3",
+    "selenium>=4.31.0",
+    "undetected-chromedriver>=3.5.5",
+]

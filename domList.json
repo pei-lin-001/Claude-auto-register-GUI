@@ -1,0 +1,15 @@
+{
+    "mailInput": "/html/body/div[2]/div/div[1]/main/div[1]/div/div[2]/div/div[1]/div/form/input",
+    "nextMailButton": "/html/body/div[2]/div/div[1]/main/div[1]/div/div[2]/div/div[1]/div/form/button",
+    "jumpPageYears": "/html/body/main/div/div/form/div/label[2]/div/div",
+    "jumpPageYearsNext": "/html/body/main/div/div/form/div/button",
+    "timeOrOneButton": "/html/body/main/div/div/div/button",
+    "freeButton": "/html/body/main/div/div/div/button/div/div[2]/div[2]/div[3]/button",
+    "iUnderstandButton": "/html/body/main/div/div/div[2]/div/div[7]/button",
+    "settingsName": "/html/body/main/div/div/div[2]/div/div[2]/form/div/input",
+    "settingsNameNext": "/html/body/main/div/div/div[2]/div/div[2]/form/div/button",
+    "setCodding": "/html/body/main/div/div/div[2]/div/div[2]/div/div[1]/button",
+    "setCoddingNext": "/html/body/main/div/div/div[2]/div/div[3]/div/button",
+    "iEndMy": "/html/body/main/div/div/div[2]/div/div[3]/div/div[2]/button",
+    "isPheon": "/html/body/main/div/div/form/div[1]/div/div/input"
+}
