@@ -71,7 +71,7 @@ api_key = "your-api-key"  # Cloudflare API密钥
 auth_email = "your-cloudflare-email"  # Cloudflare账户邮箱
 ```
 
-### 3. 浏览器驱动
+### 3. 浏览器驱动（非必要）
 
 确保已安装与Chrome浏览器版本兼容的ChromeDriver，并添加到系统PATH或项目的driver目录中。
 
