@@ -1,0 +1,8 @@
+# Claude自动注册工具依赖
+selenium>=4.31.0
+undetected-chromedriver>=3.5.5
+requests>=2.32.3
+bs4>=0.0.2
+python-dotenv>=1.0.0
+kdl>=0.2.21
+black>=25.1.0 
