@@ -6,7 +6,6 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import time, string, random, threading, logging, argparse, kdl, requests
-from xpath_map import XPATH_MAP
 from chrome_bot.insbot import wait_for_element, wait_for_element_clickable
 import json
 from utils.config import config
