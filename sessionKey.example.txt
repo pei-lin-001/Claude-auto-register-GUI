@@ -1,0 +1,20 @@
+# SessionKey示例文件
+# 这是一个示例文件，展示sessionKey的保存格式
+# 实际的sessionKey文件会在注册成功后自动生成
+
+# 格式说明：
+# 每个sessionKey前会有注释行，包含时间戳和对应的邮箱地址
+# 然后是实际的sessionKey值
+# 每个条目之间用空行分隔
+
+# 示例格式：
+# 2025-05-23 19:27:35 - user@example.com
+# sk-ant-sid01-EXAMPLE123456789ABCDEF
+#
+# 2025-05-23 19:30:15 - user2@example.com  
+# sk-ant-sid01-ANOTHER123456789XYZ
+
+# 注意：
+# - sessionKey文件会自动追加新的记录，不会覆盖已有内容
+# - 每次注册成功后都会在文件末尾添加新的sessionKey
+# - 文件名：sessionKey.txt (普通版本) 或 sessionKey-phone.txt (手机版本) 

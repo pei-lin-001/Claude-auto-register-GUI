@@ -1,0 +1,12 @@
+# 手机版SessionKey示例文件
+# 这是手机版本的sessionKey保存格式示例
+# 当检测到手机版标识时，sessionKey会保存到此类型的文件中
+
+# 示例格式：
+# 2025-05-23 19:27:35 - mobile-user@example.com
+# sk-ant-sid01-MOBILE123456789ABCDEF
+
+# 注意：
+# - 手机版和普通版的sessionKey会分别保存到不同的文件
+# - 文件格式和普通版本相同，只是文件名不同
+# - 使用追加模式，不会覆盖已有内容 
