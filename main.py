@@ -5,11 +5,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-import time, string, random, threading, logging, argparse, kdl, requests
+import time, string, random, threading, logging, argparse, kdl, requests, os
 from chrome_bot.insbot import wait_for_element, wait_for_element_clickable
 import json
 from utils.config import config
 from utils.cookie_utils import CookieManager
+from utils.proxy_manager import ProxyManager
 
 mail = mailCloud()
 QQ = QQMail()
@@ -36,6 +37,8 @@ logger.addHandler(file_handler)
 # logger.error('This is an error message')
 # logger.critical('This is a critical message')
 
+# 创建代理管理器实例，最大使用次数为3次
+proxy_manager = ProxyManager(max_usage_count=3)
 
 def getOneMail():  # 创建一个邮箱
     global mail
@@ -61,22 +64,22 @@ def generate_random_password(length):  # 生成密码
 
 def read_txt_file(file_path):
     try:
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             lines = file.readlines()
-            # 去除每行末尾的换行符
-            lines = [line.strip() for line in lines]
+            # 去除每行末尾的换行符，并过滤掉空行
+            lines = [line.strip() for line in lines if line.strip()]
             return lines
     except FileNotFoundError:
-        print("文件不存在")
+        logger.error(f"Proxy file not found: {file_path}")
         return []
     except Exception as e:
-        print("读取文件时发生错误:", str(e))
+        logger.error(f"Error reading proxy file {file_path}: {str(e)}")
         return []
 
 
 def get_ip():
-    ips = read_txt_file("Proxy.txt")
-    return {"proxyip": random.choice(ips), "port": "port"}
+    """获取可用代理 - 使用新的代理管理器"""
+    return proxy_manager.get_available_proxy()
 
 
 def get_dom_list():
@@ -86,11 +89,28 @@ def get_dom_list():
 
 def initChrome(x, y):  # 初始化 浏览器
     bot = chromeBot()
-    ipconfig = get_ip()
-    chrome = bot.createWebView(ipconfig["proxyip"], ipconfig["port"])
+    proxy_details = get_ip()  # 现在返回一个字典或None
+    chrome = bot.createWebView(proxy_details=proxy_details) # 传递代理详情字典
+    
+    if chrome is None:
+        logger.error("Failed to initialize Chrome browser, possibly due to proxy or other issues.")
+        # 根据需要的行为，你可能想要退出或抛出异常
+        return None
+        
     chrome.get("https://claude.ai")
     # chrome.get("https://google.com/")
     chrome.set_window_position(x, y)  # 设置窗口左上角的位置坐标
+
+    # 记录代理使用次数
+    if proxy_details:
+        proxy_manager.record_proxy_usage(
+            proxy_details["proxy_string"], 
+            proxy_details["file_path"]
+        )
+        
+        # 打印代理统计信息
+        stats = proxy_manager.get_proxy_statistics()
+        logger.info(f"代理统计: 总计 {stats['total_proxies']} 个，活跃 {stats['active_proxies']} 个，已耗尽 {stats['exhausted_proxies']} 个")
 
     return chrome
 
@@ -99,6 +119,8 @@ def startMain(x, y):
     _mail = getOneMail()
     # _mail = "xxx"
     _chrome = initChrome(x, y)
+    if _chrome is None:
+        return
     dom_list = get_dom_list()
     print("加载完毕")
 
