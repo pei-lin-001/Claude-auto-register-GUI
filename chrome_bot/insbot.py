@@ -6,24 +6,52 @@ import undetected_chromedriver as webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-import os, random
+import os, random, platform
 
 
-def create_web_view(proxyip, port):
+def create_web_view(proxy_details=None):
     try:
-        # _proxy = f"{proxyip}:{port}"
-        _proxy = f"http://{proxyip}"
-        # _proxy = f"9214fd96:074219ac@us11.kookeey.info:20385"
-        # _proxy = f"7208866-9214fd96:074219ac-global-74043961-1m@gate.kookeey.info:1000"
-        print(_proxy)
-        chrome_driver_path = os.path.join(os.getcwd(), "driver", "chromedriver.exe")
-        # 创建Chrome Service对象
+        # 根据操作系统选择正确的chromedriver文件名
+        if platform.system() == "Windows":
+            driver_filename = "chromedriver.exe"
+        else:
+            driver_filename = "chromedriver"
+        
+        chrome_driver_path = os.path.join(os.getcwd(), "driver", driver_filename)
         service = Service(chrome_driver_path)
         chromeOption = webdriver.ChromeOptions()
-        # 设置禁止加载图片的偏好
+        
         prefs = {"profile.managed_default_content_settings.images": 2}
         chromeOption.add_experimental_option("prefs", prefs)
-        chromeOption.add_argument(f"--proxy-server={_proxy}")
+
+        if proxy_details and isinstance(proxy_details, dict) and proxy_details.get("proxy_string") and proxy_details.get("type"):
+            proxy_string = proxy_details["proxy_string"]
+            proxy_type = proxy_details["type"]
+            
+            formatted_proxy = None
+            if proxy_type == "http_ip_port":
+                # 假设 proxy_string 是 "IP:端口" 格式
+                formatted_proxy = f"http://{proxy_string}"
+            elif proxy_type == "http_user_pass":
+                # 假设 proxy_string 是 "用户名:密码@IP:端口" 格式
+                # 对于Chrome，--proxy-server=http://用户名:密码@主机:端口是标准方式
+                # 除非代理本身行为异常，否则通常不需要特殊扩展
+                formatted_proxy = f"http://{proxy_string}"
+            elif proxy_type == "socks5":
+                # 假设 proxy_string 是 "IP:端口" 格式
+                formatted_proxy = f"socks5://{proxy_string}"
+            elif proxy_type == "socks5_user_pass": 
+                # 假设 proxy_string 是 "用户名:密码@IP:端口" 格式
+                formatted_proxy = f"socks5://{proxy_string}"
+            
+            if formatted_proxy:
+                print(f"尝试使用代理: {formatted_proxy} (类型: {proxy_type})")
+                chromeOption.add_argument(f"--proxy-server={formatted_proxy}")
+            else:
+                print(f"不支持的代理类型 ('{proxy_type}') 或无效的代理字符串。将不使用代理继续。")
+        else:
+            print("未提供有效的代理详情。将不使用代理继续。")
+
         chromeOption.add_argument("--no-sandbox")
         chromeOption.add_argument("--disable-dev-shm-usage")
         # file_path = os.path.join(os.getcwd(), "pro.zip")

@@ -5,5 +5,6 @@ class chromeBot:
     def __init__(self) -> None:
         pass
 
-    def createWebView(self, proxyip, port):
-        return create_web_view(proxyip, port)
+    # 更新签名以接受代理详情字典（或None）
+    def createWebView(self, proxy_details=None):
+        return create_web_view(proxy_details=proxy_details)
