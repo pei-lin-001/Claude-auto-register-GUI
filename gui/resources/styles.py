@@ -35,6 +35,8 @@ COLORS = {
     'bg_surface': '#FAFAFA',        # Surface color
     'bg_dark': '#212121',           # Dark surface
     'bg_darker': '#121212',         # Darker surface
+    'bg_gradient_start': '#E3F2FD', # 渐变起始色
+    'bg_gradient_end': '#BBDEFB',   # 渐变结束色
     
     # 文字颜色 - 增强对比度
     'text_primary': '#212121',      # 主要文字 - 深灰
@@ -50,16 +52,18 @@ COLORS = {
     'border_dark': '#757575',       # 深边框
     'border_accent': '#1976D2',     # 强调边框
     
-    # 阴影和高度
-    'shadow_light': '#E0E0E0',      # 浅阴影
-    'shadow_medium': '#BDBDBD',     # 中等阴影
-    'shadow_dark': '#757575',       # 深阴影
+    # 阴影和高度 - 修复颜色格式
+    'shadow_light': '#F0F0F0',      # 浅阴影
+    'shadow_medium': '#E0E0E0',     # 中等阴影
+    'shadow_dark': '#D0D0D0',       # 深阴影
+    'card_shadow': '#F5F5F5',       # 卡片阴影
     
     # 特殊效果色
     'hover': '#F5F5F5',             # 悬停效果
     'pressed': '#EEEEEE',           # 按压效果
     'selected': '#E3F2FD',          # 选中效果
     'focus': '#BBDEFB',             # 焦点效果
+    'ripple': '#BBDEFB',            # 水波纹效果
 }
 
 # 现代化字体配置
@@ -151,6 +155,7 @@ ICONS = {
     'clear': '🧹',
     'folder': '📁',
     'log': '📋',
+    'detail': '🔍',
     
     # 网络图标
     'proxy_active': '🟢',
@@ -206,18 +211,37 @@ STYLES = {
     },
     'card_frame': {
         'relief': 'flat',
+        'borderwidth': 0,
+        'background': COLORS['bg_primary'],
+        'highlightbackground': COLORS['card_shadow'],
+        'highlightthickness': 2,
+    },
+    'card_frame_elevated': {
+        'relief': 'solid',
         'borderwidth': 1,
         'background': COLORS['bg_primary'],
         'highlightbackground': COLORS['border_light'],
-        'highlightthickness': 1,
+        'highlightthickness': 0,
     },
     'label_frame': {
         'relief': 'flat',
-        'borderwidth': 1,
+        'borderwidth': 0,
         'background': COLORS['bg_primary'],
         'foreground': COLORS['text_primary'],
         'font': FONTS['subheading'],
         'labelanchor': 'nw',
+        'padx': SIZES['padding_large'],
+        'pady': SIZES['padding_medium'],
+    },
+    'label_frame_accent': {
+        'relief': 'flat',
+        'borderwidth': 2,
+        'background': COLORS['bg_primary'],
+        'foreground': COLORS['primary'],
+        'font': FONTS['subheading'],
+        'labelanchor': 'nw',
+        'highlightbackground': COLORS['primary'],
+        'highlightthickness': 1,
     },
     'button_primary': {
         'relief': 'flat',
@@ -226,20 +250,24 @@ STYLES = {
         'foreground': COLORS['text_on_primary'],
         'font': FONTS['button'],
         'cursor': 'hand2',
-        'pady': 8,
-        'padx': 16,
+        'pady': 12,
+        'padx': 24,
+        'activebackground': COLORS['primary_dark'],
+        'activeforeground': COLORS['text_on_primary'],
     },
     'button_secondary': {
         'relief': 'flat',
-        'borderwidth': 1,
+        'borderwidth': 2,
         'background': COLORS['bg_primary'],
         'foreground': COLORS['primary'],
         'font': FONTS['button'],
         'cursor': 'hand2',
-        'pady': 6,
-        'padx': 14,
+        'pady': 10,
+        'padx': 22,
         'highlightbackground': COLORS['primary'],
-        'highlightthickness': 1,
+        'highlightthickness': 2,
+        'activebackground': COLORS['hover'],
+        'activeforeground': COLORS['primary_dark'],
     },
     'button_success': {
         'relief': 'flat',
@@ -248,8 +276,10 @@ STYLES = {
         'foreground': COLORS['text_on_primary'],
         'font': FONTS['button'],
         'cursor': 'hand2',
-        'pady': 8,
-        'padx': 16,
+        'pady': 12,
+        'padx': 24,
+        'activebackground': COLORS['success_light'],
+        'activeforeground': COLORS['text_on_primary'],
     },
     'button_warning': {
         'relief': 'flat',
@@ -258,8 +288,10 @@ STYLES = {
         'foreground': COLORS['text_on_primary'],
         'font': FONTS['button'],
         'cursor': 'hand2',
-        'pady': 8,
-        'padx': 16,
+        'pady': 12,
+        'padx': 24,
+        'activebackground': COLORS['warning_light'],
+        'activeforeground': COLORS['text_on_primary'],
     },
     'button_danger': {
         'relief': 'flat',
@@ -268,19 +300,33 @@ STYLES = {
         'foreground': COLORS['text_on_primary'],
         'font': FONTS['button'],
         'cursor': 'hand2',
+        'pady': 12,
+        'padx': 24,
+        'activebackground': COLORS['error_light'],
+        'activeforeground': COLORS['text_on_primary'],
+    },
+    'button_icon': {
+        'relief': 'flat',
+        'borderwidth': 0,
+        'background': COLORS['bg_tertiary'],
+        'foreground': COLORS['text_primary'],
+        'font': FONTS['default'],
+        'cursor': 'hand2',
         'pady': 8,
-        'padx': 16,
+        'padx': 8,
+        'activebackground': COLORS['hover'],
     },
     'entry': {
         'relief': 'flat',
-        'borderwidth': 1,
+        'borderwidth': 2,
         'background': COLORS['bg_primary'],
         'foreground': COLORS['text_primary'],
         'font': FONTS['body'],
         'insertbackground': COLORS['primary'],
         'highlightbackground': COLORS['border_light'],
         'highlightcolor': COLORS['primary'],
-        'highlightthickness': 1,
+        'highlightthickness': 2,
+        'selectbackground': COLORS['selected'],
     },
     'text': {
         'relief': 'flat',
@@ -295,6 +341,8 @@ STYLES = {
         'highlightbackground': COLORS['border_light'],
         'highlightcolor': COLORS['primary'],
         'highlightthickness': 1,
+        'padx': SIZES['padding_medium'],
+        'pady': SIZES['padding_medium'],
     },
     'listbox': {
         'relief': 'flat',
@@ -307,6 +355,7 @@ STYLES = {
         'highlightbackground': COLORS['border_light'],
         'highlightcolor': COLORS['primary'],
         'highlightthickness': 1,
+        'activestyle': 'none',
     },
     'tab_button_active': {
         'relief': 'flat',
@@ -315,8 +364,8 @@ STYLES = {
         'foreground': COLORS['text_on_primary'],
         'font': FONTS['button'],
         'cursor': 'hand2',
-        'pady': 10,
-        'padx': 20,
+        'pady': 12,
+        'padx': 24,
     },
     'tab_button_inactive': {
         'relief': 'flat',
@@ -325,8 +374,10 @@ STYLES = {
         'foreground': COLORS['text_secondary'],
         'font': FONTS['body'],
         'cursor': 'hand2',
-        'pady': 10,
-        'padx': 20,
+        'pady': 12,
+        'padx': 24,
+        'activebackground': COLORS['hover'],
+        'activeforeground': COLORS['text_primary'],
     },
     'status_bar': {
         'relief': 'flat',
@@ -334,6 +385,18 @@ STYLES = {
         'background': COLORS['bg_secondary'],
         'highlightbackground': COLORS['border_light'],
         'highlightthickness': 1,
+    },
+    'progress_bar': {
+        'background': COLORS['bg_tertiary'],
+        'troughcolor': COLORS['bg_tertiary'],
+        'borderwidth': 0,
+        'lightcolor': COLORS['primary'],
+        'darkcolor': COLORS['primary'],
+    },
+    'separator': {
+        'background': COLORS['border_light'],
+        'borderwidth': 0,
+        'relief': 'flat',
     }
 }
 

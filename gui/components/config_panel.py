@@ -441,6 +441,7 @@ class ConfigFrame(tk.Frame):
         options_frame.pack(fill=tk.X, pady=(10, 0))
         
         self.headless_var = tk.BooleanVar()
+        self.incognito_var = tk.BooleanVar(value=True)  # 默认启用无痕模式
         self.disable_images_var = tk.BooleanVar()
         self.disable_css_var = tk.BooleanVar(value=True)
         self.debug_mode_var = tk.BooleanVar()
@@ -460,8 +461,8 @@ class ConfigFrame(tk.Frame):
         
         tk.Checkbutton(
             options_row1,
-            text="禁用图片",
-            variable=self.disable_images_var,
+            text="无痕模式",
+            variable=self.incognito_var,
             font=FONTS['default'],
             bg=COLORS['bg_primary'],
             fg=COLORS['text_primary'],
@@ -470,6 +471,20 @@ class ConfigFrame(tk.Frame):
         
         tk.Checkbutton(
             options_row1,
+            text="禁用图片",
+            variable=self.disable_images_var,
+            font=FONTS['default'],
+            bg=COLORS['bg_primary'],
+            fg=COLORS['text_primary'],
+            anchor='w'
+        ).pack(side=tk.LEFT, padx=(0, 20))
+        
+        # 第二行选项
+        options_row2 = tk.Frame(options_frame, bg=COLORS['bg_primary'])
+        options_row2.pack(fill=tk.X, pady=(5, 0))
+        
+        tk.Checkbutton(
+            options_row2,
             text="禁用CSS",
             variable=self.disable_css_var,
             font=FONTS['default'],
@@ -479,7 +494,7 @@ class ConfigFrame(tk.Frame):
         ).pack(side=tk.LEFT, padx=(0, 20))
         
         tk.Checkbutton(
-            options_row1,
+            options_row2,
             text="调试模式",
             variable=self.debug_mode_var,
             font=FONTS['default'],

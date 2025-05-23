@@ -1,11 +1,21 @@
 # Claude自动注册工具依赖
-selenium>=4.31.0
+
+# 核心web自动化依赖
+selenium>=4.32.0
 undetected-chromedriver>=3.5.5
 requests>=2.32.3
-bs4>=0.0.2
+beautifulsoup4>=4.12.0
 python-dotenv>=1.0.0
+
+# 代理和网络
 kdl>=0.2.21
+urllib3>=2.0.0
+
+# 代码格式化
 black>=25.1.0
+
+# GUI界面依赖
+# tkinter是Python内置模块，无需pip安装
 
 # GUI第三阶段高级功能依赖
 # 主题和现代化界面
@@ -18,6 +28,9 @@ pillow>=10.0.0
 # 全局快捷键支持
 keyboard>=0.13.5
 
+# 系统监控（可选，用于内存使用显示）
+psutil>=5.9.0
+
 # 图表和可视化
 matplotlib>=3.7.0
 numpy>=1.24.0
@@ -26,4 +39,15 @@ numpy>=1.24.0
 babel>=2.12.0
 
 # 配置文件处理增强
-pyyaml>=6.0 
+pyyaml>=6.0
+
+# 异步支持
+trio>=0.22.0
+trio-websocket>=0.9.0
+
+# 日志和调试
+loguru>=0.7.0
+
+# 数据处理
+pandas>=2.0.0
+openpyxl>=3.1.0 

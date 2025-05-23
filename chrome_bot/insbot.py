@@ -9,7 +9,7 @@ from selenium.common.exceptions import TimeoutException
 import os, random, platform
 
 
-def create_web_view(proxy_details=None):
+def create_web_view(proxy_details=None, incognito=True):
     try:
         # 根据操作系统选择正确的chromedriver文件名
         if platform.system() == "Windows":
@@ -21,9 +21,18 @@ def create_web_view(proxy_details=None):
         service = Service(chrome_driver_path)
         chromeOption = webdriver.ChromeOptions()
         
+        # 根据参数决定是否启用无痕模式（隐私模式）
+        if incognito:
+            chromeOption.add_argument("--incognito")
+            print("启用无痕模式")
+        else:
+            print("使用普通模式")
+        
+        # 禁用图片加载以提高性能
         prefs = {"profile.managed_default_content_settings.images": 2}
         chromeOption.add_experimental_option("prefs", prefs)
 
+        # 代理配置
         if proxy_details and isinstance(proxy_details, dict) and proxy_details.get("proxy_string") and proxy_details.get("type"):
             proxy_string = proxy_details["proxy_string"]
             proxy_type = proxy_details["type"]
@@ -52,11 +61,19 @@ def create_web_view(proxy_details=None):
         else:
             print("未提供有效的代理详情。将不使用代理继续。")
 
+        # 其他Chrome选项
         chromeOption.add_argument("--no-sandbox")
         chromeOption.add_argument("--disable-dev-shm-usage")
+        
+        # 添加更多隐私和安全相关的选项
+        chromeOption.add_argument("--disable-web-security")
+        chromeOption.add_argument("--disable-features=VizDisplayCompositor")
+        chromeOption.add_argument("--disable-blink-features=AutomationControlled")
+        
         # file_path = os.path.join(os.getcwd(), "pro.zip")
         # chromeOption.add_extension(file_path)
-        print("等待启动")
+        mode_text = "无痕模式" if incognito else "普通模式"
+        print(f"等待启动浏览器（{mode_text}）...")
         chrome = webdriver.Chrome(
             service=service, options=chromeOption, keep_alive=True
         )

@@ -4,8 +4,15 @@ import threading
 import json
 import csv
 import time
+import sys
+import os
 from datetime import datetime
+
+# 添加项目根目录到路径
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from ..resources.styles import COLORS, FONTS, ICONS
+from gui.services.registration_service import RegistrationService
 
 class BatchRegisterFrame(ttk.Frame):
     """批量注册界面组件"""
@@ -19,7 +26,54 @@ class BatchRegisterFrame(ttk.Frame):
         self.current_index = 0
         self.success_count = 0
         self.failed_count = 0
+        
+        # 初始化注册服务
+        self.registration_service = RegistrationService()
+        self.setup_service_callbacks()
+        
         self.setup_ui()
+        
+    def setup_service_callbacks(self):
+        """设置服务回调函数"""
+        self.registration_service.set_callbacks(
+            progress_callback=self.on_registration_progress,
+            log_callback=self.on_log_message,
+            status_callback=self.on_registration_status
+        )
+        
+    def on_registration_progress(self, progress, current, total, message):
+        """注册进度回调"""
+        self.after(0, lambda: self.update_progress_display(progress, current, total, message))
+        
+    def on_log_message(self, message, level="INFO"):
+        """日志消息回调"""
+        print(f"[{level}] {message}")  # 可以添加到日志显示区域
+        
+    def on_registration_status(self, status):
+        """注册状态回调"""
+        self.after(0, lambda: self.update_status_display(status))
+        
+    def update_progress_display(self, progress, current, total, message):
+        """更新进度显示"""
+        try:
+            self.progress_var.set(progress)
+            self.current_label.config(text=f"当前: {current}")
+            
+            # 更新统计
+            stats = self.registration_service.get_stats()
+            self.success_label.config(text=f"成功: {stats['success']}")
+            self.failed_label.config(text=f"失败: {stats['failed']}")
+            
+        except Exception as e:
+            print(f"更新进度显示失败: {e}")
+            
+    def update_status_display(self, status):
+        """更新状态显示"""
+        try:
+            if hasattr(self, 'status_label'):
+                self.status_label.config(text=status)
+        except Exception as e:
+            print(f"更新状态显示失败: {e}")
         
     def setup_ui(self):
         """设置用户界面"""
@@ -301,10 +355,15 @@ class BatchRegisterFrame(ttk.Frame):
             messagebox.showwarning("警告", "请先加载账号文件")
             return
             
-        if self.is_running:
+        if self.registration_service.is_registration_running():
             messagebox.showwarning("警告", "注册任务正在进行中")
             return
             
+        # 获取注册参数
+        account_count = len(self.accounts_data)
+        concurrent = self.concurrent_var.get()
+        interval = self.interval_var.get()
+        
         # 重置状态
         self.reset_registration_state()
         
@@ -313,38 +372,53 @@ class BatchRegisterFrame(ttk.Frame):
         self.pause_btn.config(state='normal')
         self.stop_btn.config(state='normal')
         
-        self.is_running = True
-        self.status_label.config(text="正在开始批量注册...")
+        # 启动批量注册
+        success = self.registration_service.start_batch_registration(
+            account_count=account_count,
+            concurrent=concurrent,
+            interval=interval
+        )
         
-        # 启动注册线程
-        self.task_thread = threading.Thread(target=self._batch_register_worker, daemon=True)
-        self.task_thread.start()
+        if success:
+            self.is_running = True
+            messagebox.showinfo("开始注册", f"已启动批量注册任务，共 {account_count} 个账号")
+        else:
+            messagebox.showerror("启动失败", "批量注册任务启动失败，请检查配置")
+            self.reset_button_state()
         
     def pause_register(self):
         """暂停/恢复注册"""
-        if self.is_running:
-            self.is_running = False
-            self.pause_btn.config(text=f"{ICONS['play']} 恢复")
-            self.status_label.config(text="注册已暂停")
+        if self.registration_service.is_registration_running():
+            if self.registration_service.is_registration_paused():
+                # 恢复注册
+                if self.registration_service.resume_registration():
+                    self.pause_btn.config(text=f"{ICONS['pause']} 暂停")
+                    messagebox.showinfo("恢复", "注册任务已恢复")
+            else:
+                # 暂停注册
+                if self.registration_service.pause_registration():
+                    self.pause_btn.config(text=f"{ICONS['play']} 恢复")
+                    messagebox.showinfo("暂停", "注册任务已暂停")
         else:
-            self.is_running = True
-            self.pause_btn.config(text=f"{ICONS['pause']} 暂停")
-            self.status_label.config(text="正在继续注册...")
-            # 继续注册任务
-            if not self.task_thread or not self.task_thread.is_alive():
-                self.task_thread = threading.Thread(target=self._batch_register_worker, daemon=True)
-                self.task_thread.start()
+            messagebox.showwarning("警告", "没有正在运行的注册任务")
                 
     def stop_register(self):
         """停止注册"""
-        self.is_running = False
+        if self.registration_service.is_registration_running():
+            result = messagebox.askyesno("确认停止", "确定要停止当前的注册任务吗？")
+            if result:
+                if self.registration_service.stop_registration():
+                    self.reset_button_state()
+                    messagebox.showinfo("停止", "注册任务已停止")
+        else:
+            messagebox.showwarning("警告", "没有正在运行的注册任务")
         
-        # 更新按钮状态
+    def reset_button_state(self):
+        """重置按钮状态"""
         self.start_btn.config(state='normal')
         self.pause_btn.config(state='disabled', text=f"{ICONS['pause']} 暂停")
         self.stop_btn.config(state='disabled')
-        
-        self.status_label.config(text="注册已停止")
+        self.is_running = False
         
     def reset_registration_state(self):
         """重置注册状态"""
@@ -362,165 +436,50 @@ class BatchRegisterFrame(ttk.Frame):
         self.update_stats()
         
     def _batch_register_worker(self):
-        """批量注册工作线程"""
-        start_time = time.time()
-        
-        try:
-            while self.current_index < len(self.accounts_data) and self.is_running:
-                # 等待暂停状态解除
-                while not self.is_running and self.current_index < len(self.accounts_data):
-                    time.sleep(0.1)
-                    
-                if not self.is_running:
-                    break
-                    
-                account = self.accounts_data[self.current_index]
-                
-                # 更新当前状态
-                self.after(0, lambda: self.status_label.config(
-                    text=f"正在注册: {account['email']} ({self.current_index + 1}/{len(self.accounts_data)})"
-                ))
-                
-                # 模拟注册过程
-                register_start = time.time()
-                result = self._simulate_register_account(account)
-                register_time = time.time() - register_start
-                
-                # 记录结果
-                result_data = {
-                    'index': self.current_index + 1,
-                    'email': account['email'],
-                    'status': result['status'],
-                    'message': result['message'],
-                    'time_taken': f"{register_time:.2f}s",
-                    'timestamp': datetime.now().strftime("%H:%M:%S")
-                }
-                
-                # 更新UI
-                self.after(0, lambda r=result_data: self._update_result_ui(r))
-                
-                self.current_index += 1
-                
-                # 计算并更新统计信息
-                elapsed_time = time.time() - start_time
-                speed = (self.current_index / elapsed_time) * 60 if elapsed_time > 0 else 0
-                
-                self.after(0, lambda s=speed: [
-                    self.update_stats(),
-                    self.speed_label.config(text=f"速度: {s:.1f}/min")
-                ])
-                
-                # 间隔时间
-                if self.current_index < len(self.accounts_data):
-                    time.sleep(self.interval_var.get())
-                    
-        except Exception as e:
-            self.after(0, lambda: messagebox.showerror("错误", f"批量注册过程中发生错误: {str(e)}"))
-        finally:
-            # 完成后更新UI状态
-            self.after(0, self._finish_registration)
+        """批量注册工作线程（已由注册服务接管，保留用于兼容性）"""
+        # 这个方法现在由RegistrationService处理
+        pass
             
     def _simulate_register_account(self, account):
-        """模拟注册账号（这里应该调用实际的注册逻辑）"""
-        import random
-        
-        # 模拟注册时间
-        time.sleep(random.uniform(2, 5))
-        
-        # 模拟注册结果
-        success_rate = 0.8  # 80%成功率
-        if random.random() < success_rate:
-            return {
-                'status': '成功',
-                'message': '注册完成'
-            }
-        else:
-            errors = [
-                '邮箱已存在',
-                '网络超时',
-                '代理连接失败',
-                '验证码识别失败',
-                '服务器错误'
-            ]
-            return {
-                'status': '失败',
-                'message': random.choice(errors)
-            }
-            
-    def _update_result_ui(self, result_data):
-        """更新结果UI"""
-        # 添加到结果列表
-        item_values = (
-            result_data['index'],
-            result_data['email'],
-            result_data['status'],
-            result_data['message'],
-            result_data['time_taken'],
-            result_data['timestamp']
-        )
-        
-        item = self.results_tree.insert('', 'end', values=item_values)
-        
-        # 根据状态设置颜色
-        if result_data['status'] == '成功':
-            self.results_tree.item(item, tags=('success',))
-            self.success_count += 1
-        else:
-            self.results_tree.item(item, tags=('failed',))
-            self.failed_count += 1
-            
-        # 配置标签样式
-        self.results_tree.tag_configure('success', foreground=COLORS['success'])
-        self.results_tree.tag_configure('failed', foreground=COLORS['error'])
-        
-        # 滚动到最新项目
-        self.results_tree.see(item)
-        
-        # 存储结果
-        self.results.append(result_data)
-        
-    def _finish_registration(self):
-        """完成注册"""
-        self.is_running = False
-        
-        # 更新按钮状态
-        self.start_btn.config(state='normal')
-        self.pause_btn.config(state='disabled', text=f"{ICONS['pause']} 暂停")
-        self.stop_btn.config(state='disabled')
-        
-        # 显示完成信息
-        total = len(self.accounts_data)
-        completed = self.current_index
-        success_rate = (self.success_count / completed * 100) if completed > 0 else 0
-        
-        message = f"批量注册完成！\n"
-        message += f"总数: {total}\n"
-        message += f"完成: {completed}\n"
-        message += f"成功: {self.success_count}\n"
-        message += f"失败: {self.failed_count}\n"
-        message += f"成功率: {success_rate:.1f}%"
-        
-        self.status_label.config(text="批量注册完成")
-        messagebox.showinfo("完成", message)
+        """模拟注册账号（已由注册服务接管）"""
+        # 这个方法现在由RegistrationService处理
+        return {
+            'status': '成功',
+            'message': '注册完成'
+        }
         
     def update_stats(self):
         """更新统计信息"""
-        total = len(self.accounts_data)
-        current = self.current_index
-        
-        # 更新标签
-        self.total_label.config(text=f"总数: {total}")
-        self.current_label.config(text=f"当前: {current}")
-        self.success_label.config(text=f"成功: {self.success_count}")
-        self.failed_label.config(text=f"失败: {self.failed_count}")
-        
-        # 更新进度条
-        if total > 0:
-            progress = (current / total) * 100
-            self.progress_var.set(progress)
-        else:
-            self.progress_var.set(0)
+        try:
+            # 从注册服务获取统计信息
+            stats = self.registration_service.get_stats()
             
+            total = stats.get('total', len(self.accounts_data))
+            current = stats.get('current', self.current_index)
+            success = stats.get('success', self.success_count)
+            failed = stats.get('failed', self.failed_count)
+            
+            # 更新显示
+            self.total_label.config(text=f"总数: {total}")
+            self.current_label.config(text=f"当前: {current}")
+            self.success_label.config(text=f"成功: {success}")
+            self.failed_label.config(text=f"失败: {failed}")
+            
+            # 更新进度条
+            if total > 0:
+                progress = (current / total) * 100
+                self.progress_var.set(progress)
+            
+            # 计算速度
+            if stats.get('start_time'):
+                elapsed_time = time.time() - stats['start_time']
+                if elapsed_time > 0:
+                    speed = (current / elapsed_time) * 60  # 每分钟速度
+                    self.speed_label.config(text=f"速度: {speed:.1f}/min")
+                    
+        except Exception as e:
+            print(f"更新统计信息失败: {e}")
+        
     def export_results(self):
         """导出结果"""
         if not self.results:

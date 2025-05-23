@@ -1,7 +1,7 @@
 {
     "mailInput": "/html/body/div[2]/div/div[1]/main/div[1]/div/div[2]/div/div[1]/div/form/input",
     "nextMailButton": "/html/body/div[2]/div/div[1]/main/div[1]/div/div[2]/div/div[1]/div/form/button",
-    "jumpPageYears": "/html/body/main/div/div/form/div/label[2]/div/div",
+    "jumpPageYears": "//*[@id=\"age-verification\"]",
     "jumpPageYearsNext": "/html/body/main/div/div/form/div/button",
     "timeOrOneButton": "/html/body/main/div/div/div/button",
     "freeButton": "/html/body/main/div/div/div/button/div/div[2]/div[2]/div[3]/button",

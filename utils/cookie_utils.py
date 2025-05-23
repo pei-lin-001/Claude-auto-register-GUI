@@ -43,22 +43,40 @@ class CookieManager:
         return len(cookies)
     
     @staticmethod
-    def save_session_key(cookies, is_phone=False):
+    def save_session_key(cookies, is_phone=False, email=None):
         """
-        从cookies中提取sessionKey并保存
+        从cookies中提取sessionKey并保存（追加模式）
         
         Args:
             cookies: cookie列表
             is_phone: 是否为手机版本，决定保存的文件名
+            email: 邮箱地址，用于标识
             
         Returns:
             bool: 保存是否成功
         """
+        import time
+        from datetime import datetime
+        
         file_path = 'sessionKey-phone.txt' if is_phone else 'sessionKey.txt'
+        
         for cookie in cookies:
             if cookie.get('name') == 'sessionKey':
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(cookie.get('value', '') + '\n')
+                session_key = cookie.get('value', '')
+                
+                # 生成时间戳
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                # 构建保存内容
+                if email:
+                    content = f"# {timestamp} - {email}\n{session_key}\n\n"
+                else:
+                    content = f"# {timestamp}\n{session_key}\n\n"
+                
+                # 追加模式保存
+                with open(file_path, 'a', encoding='utf-8') as f:
+                    f.write(content)
+                
                 return True
         return False
     

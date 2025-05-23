@@ -87,10 +87,10 @@ def get_dom_list():
         return json.load(file)
 
 
-def initChrome(x, y):  # 初始化 浏览器
+def initChrome(x, y, incognito=True):  # 初始化 浏览器
     bot = chromeBot()
     proxy_details = get_ip()  # 现在返回一个字典或None
-    chrome = bot.createWebView(proxy_details=proxy_details) # 传递代理详情字典
+    chrome = bot.createWebView(proxy_details=proxy_details, incognito=incognito) # 传递代理详情字典和无痕模式参数
     
     if chrome is None:
         logger.error("Failed to initialize Chrome browser, possibly due to proxy or other issues.")
@@ -112,6 +112,9 @@ def initChrome(x, y):  # 初始化 浏览器
         stats = proxy_manager.get_proxy_statistics()
         logger.info(f"代理统计: 总计 {stats['total_proxies']} 个，活跃 {stats['active_proxies']} 个，已耗尽 {stats['exhausted_proxies']} 个")
 
+    mode_text = "无痕模式" if incognito else "普通模式"
+    logger.info(f"浏览器初始化成功（{mode_text}）")
+    
     return chrome
 
 
@@ -166,11 +169,11 @@ def startMain(x, y):
             if isPheon is not None:
                 isPheon.click()
                 # 保存sessionKey到手机版文件
-                CookieManager.save_session_key(cookies, is_phone=True)
+                CookieManager.save_session_key(cookies, is_phone=True, email=_mail)
                 logger.info("已将sessionKey保存到sessionKey-phone.txt")
             else:
                 # 保存sessionKey到普通文件
-                CookieManager.save_session_key(cookies, is_phone=False)
+                CookieManager.save_session_key(cookies, is_phone=False, email=_mail)
                 logger.info("已将sessionKey保存到sessionKey.txt")
         else:
             logger.error("jumpPageYears 元素未找到")

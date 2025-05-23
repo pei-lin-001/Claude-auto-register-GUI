@@ -1,0 +1,35 @@
+{
+    "mail": {
+        "imap_server": "imap.qq.com",
+        "imap_port": 993,
+        "mail_address": "",
+        "mail_password": "",
+        "use_ssl": true
+    },
+    "cloudflare": {
+        "api_key": "",
+        "zone_id": "",
+        "domain": "",
+        "enabled": false
+    },
+    "browser": {
+        "headless": false,
+        "window_size": "1920,1080",
+        "user_agent": "",
+        "disable_images": true,
+        "disable_javascript": false
+    },
+    "registration": {
+        "max_concurrent": 3,
+        "interval_seconds": 5,
+        "max_retries": 3,
+        "timeout_seconds": 30
+    },
+    "proxy": {
+        "enabled": true,
+        "file_path": "Proxy.txt",
+        "max_usage": 3,
+        "test_timeout": 10
+    },
+    "test_key": "test_value"
+}
