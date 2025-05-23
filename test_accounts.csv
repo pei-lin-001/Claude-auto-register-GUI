@@ -1,0 +1,6 @@
+email,password,first_name,last_name,proxy
+test1@example.com,password123,张,三,
+test2@example.com,password456,李,四,
+test3@example.com,password789,王,五,
+test4@example.com,passwordabc,赵,六,
+test5@example.com,passworddef,钱,七, 

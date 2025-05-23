@@ -147,6 +147,10 @@ ICONS = {
     'close': '✖️',
     'minimize': '➖',
     'maximize': '🔲',
+    'play': '▶️',
+    'clear': '🧹',
+    'folder': '📁',
+    'log': '📋',
     
     # 网络图标
     'proxy_active': '🟢',
