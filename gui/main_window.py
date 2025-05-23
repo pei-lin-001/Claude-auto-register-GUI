@@ -12,7 +12,7 @@ import os
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from gui.resources.styles import COLORS, FONTS, SIZES, ICONS
+from gui.resources.styles import COLORS, FONTS, SIZES, ICONS, STYLES
 from gui.components.dashboard import DashboardFrame
 from gui.components.config_panel import ConfigFrame
 
@@ -30,9 +30,12 @@ class MainApplication:
         
     def setup_window(self):
         """设置主窗口属性"""
-        self.root.title("Claude 自动注册工具 v1.0")
+        self.root.title("Claude 自动注册工具 v1.0 - 现代化界面")
         self.root.geometry(f"{SIZES['window_width']}x{SIZES['window_height']}")
         self.root.minsize(SIZES['window_min_width'], SIZES['window_min_height'])
+        
+        # 设置窗口背景
+        self.root.configure(bg=COLORS['bg_secondary'])
         
         # 设置窗口图标和配置
         try:
@@ -97,15 +100,22 @@ class MainApplication:
     def create_main_interface(self):
         """创建主界面"""
         # 创建主框架
-        self.main_frame = tk.Frame(self.root, bg=COLORS['bg_secondary'])
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.main_frame = tk.Frame(self.root, **STYLES['main_frame'])
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_medium'], pady=SIZES['padding_medium'])
         
         # 创建标签页框架
         self.create_tab_bar()
         
         # 创建内容区域
-        self.content_frame = tk.Frame(self.main_frame, bg=COLORS['bg_primary'], relief='sunken', bd=1)
-        self.content_frame.pack(fill=tk.BOTH, expand=True, pady=(5, 0))
+        self.content_frame = tk.Frame(
+            self.main_frame, 
+            bg=COLORS['bg_primary'], 
+            relief='flat', 
+            bd=0,
+            highlightbackground=COLORS['border_light'],
+            highlightthickness=1
+        )
+        self.content_frame.pack(fill=tk.BOTH, expand=True, pady=(SIZES['padding_small'], 0))
         
         # 初始化各个页面
         self.pages = {}
@@ -116,8 +126,14 @@ class MainApplication:
         
     def create_tab_bar(self):
         """创建标签栏"""
-        self.tab_frame = tk.Frame(self.main_frame, bg=COLORS['bg_secondary'], height=40)
-        self.tab_frame.pack(fill=tk.X, pady=(0, 5))
+        self.tab_frame = tk.Frame(
+            self.main_frame, 
+            bg=COLORS['bg_secondary'], 
+            height=50,
+            relief='flat',
+            bd=0
+        )
+        self.tab_frame.pack(fill=tk.X, pady=(0, SIZES['padding_small']))
         self.tab_frame.pack_propagate(False)
         
         # 标签按钮配置
@@ -135,16 +151,10 @@ class MainApplication:
             btn = tk.Button(
                 self.tab_frame,
                 text=tab_text,
-                font=FONTS['default'],
-                bg=COLORS['bg_tertiary'],
-                fg=COLORS['text_primary'],
-                relief='raised',
-                bd=1,
-                padx=20,
-                pady=5,
+                **STYLES['tab_button_inactive'],
                 command=lambda t=tab_id: self.switch_tab(t)
             )
-            btn.pack(side=tk.LEFT, padx=(0, 2))
+            btn.pack(side=tk.LEFT, padx=(0, SIZES['padding_xs']))
             self.tab_buttons[tab_id] = btn
             
     def init_pages(self):
@@ -158,14 +168,30 @@ class MainApplication:
         # 其他页面暂时用占位符
         for page_id in ["proxy", "batch", "logs"]:
             placeholder = tk.Frame(self.content_frame, bg=COLORS['bg_primary'])
-            label = tk.Label(
-                placeholder,
-                text=f"{page_id.title()} 页面开发中...",
+            
+            # 创建居中容器
+            center_frame = tk.Frame(placeholder, bg=COLORS['bg_primary'])
+            center_frame.pack(expand=True, fill=tk.BOTH)
+            
+            # 图标和文字
+            icon_label = tk.Label(
+                center_frame,
+                text=ICONS.get(page_id, '🔧'),
+                font=(FONTS['title'][0], 48),
+                bg=COLORS['bg_primary'],
+                fg=COLORS['text_muted']
+            )
+            icon_label.pack(expand=True, pady=(0, SIZES['padding_medium']))
+            
+            text_label = tk.Label(
+                center_frame,
+                text=f"{page_id.title()} 页面正在开发中...",
                 font=FONTS['heading'],
                 bg=COLORS['bg_primary'],
                 fg=COLORS['text_secondary']
             )
-            label.pack(expand=True)
+            text_label.pack(expand=True, pady=(0, SIZES['padding_xl']))
+            
             self.pages[page_id] = placeholder
             
     def switch_tab(self, tab_id):
@@ -180,21 +206,13 @@ class MainApplication:
         # 更新标签按钮样式
         for tid, btn in self.tab_buttons.items():
             if tid == tab_id:
-                btn.config(
-                    bg=COLORS['primary'],
-                    fg=COLORS['text_light'],
-                    relief='sunken'
-                )
+                btn.config(**STYLES['tab_button_active'])
             else:
-                btn.config(
-                    bg=COLORS['bg_tertiary'],
-                    fg=COLORS['text_primary'],
-                    relief='raised'
-                )
+                btn.config(**STYLES['tab_button_inactive'])
                 
         # 显示新页面
         self.current_page = self.pages[tab_id]
-        self.current_page.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.current_page.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         self.current_tab = tab_id
         
         # 更新状态栏（只有在状态栏已创建时才更新）
@@ -203,49 +221,49 @@ class MainApplication:
         
     def create_status_bar(self):
         """创建状态栏"""
-        self.status_frame = tk.Frame(self.root, bg=COLORS['bg_tertiary'], relief='sunken', bd=1)
+        self.status_frame = tk.Frame(self.root, **STYLES['status_bar'])
         self.status_frame.pack(fill=tk.X, side=tk.BOTTOM)
         
         # 状态标签
         self.status_label = tk.Label(
             self.status_frame,
             text="就绪",
-            font=FONTS['small'],
-            bg=COLORS['bg_tertiary'],
+            font=FONTS['caption'],
+            bg=COLORS['bg_secondary'],
             fg=COLORS['text_primary'],
             anchor='w'
         )
-        self.status_label.pack(side=tk.LEFT, padx=10, pady=2)
+        self.status_label.pack(side=tk.LEFT, padx=SIZES['padding_medium'], pady=SIZES['padding_small'])
         
         # 分隔符
         separator = tk.Label(
             self.status_frame,
-            text="|",
-            font=FONTS['small'],
-            bg=COLORS['bg_tertiary'],
-            fg=COLORS['text_secondary']
+            text="•",
+            font=FONTS['caption'],
+            bg=COLORS['bg_secondary'],
+            fg=COLORS['text_muted']
         )
-        separator.pack(side=tk.LEFT, padx=5)
+        separator.pack(side=tk.LEFT, padx=SIZES['padding_small'])
         
         # 代理状态
         self.proxy_status_label = tk.Label(
             self.status_frame,
             text="代理: 未检查",
-            font=FONTS['small'],
-            bg=COLORS['bg_tertiary'],
-            fg=COLORS['text_primary']
+            font=FONTS['caption'],
+            bg=COLORS['bg_secondary'],
+            fg=COLORS['text_secondary']
         )
-        self.proxy_status_label.pack(side=tk.LEFT, padx=5, pady=2)
+        self.proxy_status_label.pack(side=tk.LEFT, padx=SIZES['padding_small'], pady=SIZES['padding_small'])
         
         # 时间标签
         self.time_label = tk.Label(
             self.status_frame,
             text="",
-            font=FONTS['small'],
-            bg=COLORS['bg_tertiary'],
-            fg=COLORS['text_secondary']
+            font=FONTS['caption'],
+            bg=COLORS['bg_secondary'],
+            fg=COLORS['text_muted']
         )
-        self.time_label.pack(side=tk.RIGHT, padx=10, pady=2)
+        self.time_label.pack(side=tk.RIGHT, padx=SIZES['padding_medium'], pady=SIZES['padding_small'])
         
         # 更新时间
         self.update_time()

@@ -12,7 +12,7 @@ import os
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from gui.resources.styles import COLORS, FONTS, SIZES, ICONS
+from gui.resources.styles import COLORS, FONTS, SIZES, ICONS, STYLES
 from utils.proxy_manager import ProxyManager
 
 
@@ -69,7 +69,7 @@ class DashboardFrame(tk.Frame):
     def create_top_section(self):
         """创建顶部区域"""
         top_frame = tk.Frame(self.scrollable_frame, bg=COLORS['bg_primary'])
-        top_frame.pack(fill=tk.X, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
+        top_frame.pack(fill=tk.X, padx=SIZES['padding_xl'], pady=SIZES['padding_xl'])
         
         # 快速启动区域
         self.create_quick_start_section(top_frame)
@@ -84,57 +84,38 @@ class DashboardFrame(tk.Frame):
         """创建快速启动区域"""
         frame = tk.LabelFrame(
             parent,
-            text=f"{ICONS['start']} 快速启动",
-            font=FONTS['subheading'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='groove',
-            bd=2
+            text=f" {ICONS['start']} 快速启动",
+            **STYLES['label_frame']
         )
-        frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
+        frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, SIZES['padding_medium']))
         
         # 按钮框架
         btn_frame = tk.Frame(frame, bg=COLORS['bg_primary'])
-        btn_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        btn_frame.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         
         # 开始注册按钮
         self.start_btn = tk.Button(
             btn_frame,
             text=f"{ICONS['start']} 开始注册",
-            font=FONTS['default'],
-            bg=COLORS['success'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
-            pady=10,
+            **STYLES['button_success'],
             command=self.start_registration
         )
-        self.start_btn.pack(fill=tk.X, pady=(0, 10))
+        self.start_btn.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         # 快速配置按钮
         config_btn = tk.Button(
             btn_frame,
             text=f"{ICONS['config']} 快速配置",
-            font=FONTS['default'],
-            bg=COLORS['primary'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
-            pady=10,
+            **STYLES['button_primary'],
             command=self.quick_config
         )
-        config_btn.pack(fill=tk.X, pady=(0, 10))
+        config_btn.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         # 查看日志按钮
         log_btn = tk.Button(
             btn_frame,
             text=f"{ICONS['logs']} 查看日志",
-            font=FONTS['default'],
-            bg=COLORS['info'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
-            pady=10,
+            **STYLES['button_secondary'],
             command=self.view_logs
         )
         log_btn.pack(fill=tk.X)
@@ -143,57 +124,53 @@ class DashboardFrame(tk.Frame):
         """创建系统状态区域"""
         frame = tk.LabelFrame(
             parent,
-            text=f"{ICONS['info']} 系统状态",
-            font=FONTS['subheading'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='groove',
-            bd=2
+            text=f" {ICONS['info']} 系统状态",
+            **STYLES['label_frame']
         )
-        frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
+        frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, SIZES['padding_medium']))
         
         # 状态信息框架
         status_frame = tk.Frame(frame, bg=COLORS['bg_primary'])
-        status_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        status_frame.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         
         # 系统状态
         self.system_status_label = tk.Label(
             status_frame,
             text=f"{ICONS['success']} 系统正常",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['success'],
             anchor='w'
         )
-        self.system_status_label.pack(fill=tk.X, pady=(0, 5))
+        self.system_status_label.pack(fill=tk.X, pady=(0, SIZES['padding_small']))
         
         # 代理状态
         self.proxy_status_display = tk.Label(
             status_frame,
             text=f"{ICONS['proxy']} 代理: 检查中...",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['text_primary'],
             anchor='w'
         )
-        self.proxy_status_display.pack(fill=tk.X, pady=(0, 5))
+        self.proxy_status_display.pack(fill=tk.X, pady=(0, SIZES['padding_small']))
         
         # 邮箱状态
         self.email_status_label = tk.Label(
             status_frame,
             text=f"{ICONS['email']} 邮箱: 未测试",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['text_secondary'],
             anchor='w'
         )
-        self.email_status_label.pack(fill=tk.X, pady=(0, 5))
+        self.email_status_label.pack(fill=tk.X, pady=(0, SIZES['padding_small']))
         
         # 网络状态
         self.network_status_label = tk.Label(
             status_frame,
             text=f"{ICONS['cloudflare']} 网络: 稳定",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['success'],
             anchor='w'
@@ -204,59 +181,51 @@ class DashboardFrame(tk.Frame):
         """创建最近活动区域"""
         frame = tk.LabelFrame(
             parent,
-            text=f"{ICONS['logs']} 最近活动",
-            font=FONTS['subheading'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='groove',
-            bd=2
+            text=f" {ICONS['logs']} 最近活动",
+            **STYLES['label_frame']
         )
         frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # 活动信息框架
         activity_frame = tk.Frame(frame, bg=COLORS['bg_primary'])
-        activity_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        activity_frame.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         
         # 统计信息
         self.success_count_label = tk.Label(
             activity_frame,
             text=f"{ICONS['success']} 注册成功 0个",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['success'],
             anchor='w'
         )
-        self.success_count_label.pack(fill=tk.X, pady=(0, 5))
+        self.success_count_label.pack(fill=tk.X, pady=(0, SIZES['padding_small']))
         
         self.failed_count_label = tk.Label(
             activity_frame,
             text=f"{ICONS['error']} 失败 0个",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['error'],
             anchor='w'
         )
-        self.failed_count_label.pack(fill=tk.X, pady=(0, 5))
+        self.failed_count_label.pack(fill=tk.X, pady=(0, SIZES['padding_small']))
         
         self.running_count_label = tk.Label(
             activity_frame,
             text=f"{ICONS['loading']} 进行中 0个",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['info'],
             anchor='w'
         )
-        self.running_count_label.pack(fill=tk.X, pady=(0, 10))
+        self.running_count_label.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         # 查看详情按钮
         detail_btn = tk.Button(
             activity_frame,
             text="查看详情",
-            font=FONTS['small'],
-            bg=COLORS['bg_tertiary'],
-            fg=COLORS['text_primary'],
-            relief='raised',
-            bd=1,
+            **STYLES['button_secondary'],
             command=self.view_details
         )
         detail_btn.pack(anchor='w')
@@ -265,103 +234,90 @@ class DashboardFrame(tk.Frame):
         """创建统计区域"""
         stats_frame = tk.LabelFrame(
             self.scrollable_frame,
-            text=f"{ICONS['dashboard']} 注册统计",
-            font=FONTS['subheading'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='groove',
-            bd=2
+            text=f" {ICONS['dashboard']} 注册统计",
+            **STYLES['label_frame']
         )
-        stats_frame.pack(fill=tk.X, padx=SIZES['padding_large'], pady=(0, SIZES['padding_large']))
+        stats_frame.pack(fill=tk.X, padx=SIZES['padding_xl'], pady=(0, SIZES['padding_xl']))
         
         # 统计信息容器
         stats_container = tk.Frame(stats_frame, bg=COLORS['bg_primary'])
-        stats_container.pack(fill=tk.X, padx=15, pady=15)
+        stats_container.pack(fill=tk.X, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         
         # 今日统计
-        today_frame = tk.Frame(stats_container, bg=COLORS['bg_secondary'], relief='solid', bd=1)
-        today_frame.pack(fill=tk.X, pady=(0, 10))
+        today_frame = tk.Frame(stats_container, bg=COLORS['bg_secondary'], relief='flat', bd=0)
+        today_frame.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         tk.Label(
             today_frame,
             text=f"{ICONS['dashboard']} 今日注册: 0 成功 / 0 失败",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_secondary'],
             fg=COLORS['text_primary'],
             anchor='w'
-        ).pack(fill=tk.X, padx=10, pady=5)
+        ).pack(fill=tk.X, padx=SIZES['padding_medium'], pady=SIZES['padding_small'])
         
         # 本周统计
-        week_frame = tk.Frame(stats_container, bg=COLORS['bg_secondary'], relief='solid', bd=1)
-        week_frame.pack(fill=tk.X, pady=(0, 10))
+        week_frame = tk.Frame(stats_container, bg=COLORS['bg_secondary'], relief='flat', bd=0)
+        week_frame.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         tk.Label(
             week_frame,
             text=f"{ICONS['dashboard']} 本周注册: 0 成功 / 0 失败",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_secondary'],
             fg=COLORS['text_primary'],
             anchor='w'
-        ).pack(fill=tk.X, padx=10, pady=5)
+        ).pack(fill=tk.X, padx=SIZES['padding_medium'], pady=SIZES['padding_small'])
         
         # 成功率和平均用时
         metrics_frame = tk.Frame(stats_container, bg=COLORS['bg_primary'])
         metrics_frame.pack(fill=tk.X)
         
-        success_rate_frame = tk.Frame(metrics_frame, bg=COLORS['bg_secondary'], relief='solid', bd=1)
-        success_rate_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        success_rate_frame = tk.Frame(metrics_frame, bg=COLORS['bg_secondary'], relief='flat', bd=0)
+        success_rate_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, SIZES['padding_small']))
         
         tk.Label(
             success_rate_frame,
             text=f"{ICONS['success']} 成功率: 0%",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_secondary'],
             fg=COLORS['text_primary']
-        ).pack(padx=10, pady=5)
+        ).pack(padx=SIZES['padding_medium'], pady=SIZES['padding_small'])
         
-        avg_time_frame = tk.Frame(metrics_frame, bg=COLORS['bg_secondary'], relief='solid', bd=1)
-        avg_time_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        avg_time_frame = tk.Frame(metrics_frame, bg=COLORS['bg_secondary'], relief='flat', bd=0)
+        avg_time_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(SIZES['padding_small'], 0))
         
         tk.Label(
             avg_time_frame,
             text=f"{ICONS['info']} 平均用时: 0分0秒",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_secondary'],
             fg=COLORS['text_primary']
-        ).pack(padx=10, pady=5)
+        ).pack(padx=SIZES['padding_medium'], pady=SIZES['padding_small'])
         
     def create_log_preview_section(self):
         """创建日志预览区域"""
         log_frame = tk.LabelFrame(
             self.scrollable_frame,
-            text=f"{ICONS['logs']} 操作日志预览",
-            font=FONTS['subheading'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='groove',
-            bd=2
+            text=f" {ICONS['logs']} 操作日志预览",
+            **STYLES['label_frame']
         )
-        log_frame.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=(0, SIZES['padding_large']))
+        log_frame.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_xl'], pady=(0, SIZES['padding_xl']))
         
         # 日志文本区域
         log_container = tk.Frame(log_frame, bg=COLORS['bg_primary'])
-        log_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        log_container.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         
         # 日志文本框和滚动条
         log_text_frame = tk.Frame(log_container, bg=COLORS['bg_primary'])
-        log_text_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        log_text_frame.pack(fill=tk.BOTH, expand=True, pady=(0, SIZES['padding_medium']))
         
         self.log_text = tk.Text(
             log_text_frame,
             height=8,
-            font=FONTS['monospace'],
-            bg=COLORS['bg_secondary'],
-            fg=COLORS['text_primary'],
-            relief='sunken',
-            bd=1,
-            state='disabled',
-            wrap='word'
+            **STYLES['text']
         )
+        self.log_text.config(state='disabled')
         
         log_scrollbar = ttk.Scrollbar(log_text_frame, orient="vertical", command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=log_scrollbar.set)
@@ -376,11 +332,7 @@ class DashboardFrame(tk.Frame):
         view_all_btn = tk.Button(
             log_container,
             text="查看全部日志",
-            font=FONTS['default'],
-            bg=COLORS['primary'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
+            **STYLES['button_primary'],
             command=self.view_all_logs
         )
         view_all_btn.pack(anchor='w')

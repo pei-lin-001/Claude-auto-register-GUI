@@ -12,7 +12,7 @@ import os
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from gui.resources.styles import COLORS, FONTS, SIZES, ICONS
+from gui.resources.styles import COLORS, FONTS, SIZES, ICONS, STYLES
 from utils.config import config
 
 
@@ -66,11 +66,11 @@ class ConfigFrame(tk.Frame):
     def create_config_sections(self):
         """创建配置区域"""
         main_container = tk.Frame(self.scrollable_frame, bg=COLORS['bg_primary'])
-        main_container.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
+        main_container.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_xl'], pady=SIZES['padding_xl'])
         
         # 顶部区域（邮箱和Cloudflare配置）
         top_frame = tk.Frame(main_container, bg=COLORS['bg_primary'])
-        top_frame.pack(fill=tk.X, pady=(0, 20))
+        top_frame.pack(fill=tk.X, pady=(0, SIZES['padding_large']))
         
         # 邮箱配置
         self.create_email_config_section(top_frame)
@@ -88,117 +88,93 @@ class ConfigFrame(tk.Frame):
         """创建邮箱配置区域"""
         frame = tk.LabelFrame(
             parent,
-            text=f"{ICONS['email']} 邮箱配置",
-            font=FONTS['subheading'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='groove',
-            bd=2
+            text=f" {ICONS['email']} 邮箱配置",
+            **STYLES['label_frame']
         )
-        frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
+        frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, SIZES['padding_medium']))
         
         # 配置容器
         config_container = tk.Frame(frame, bg=COLORS['bg_primary'])
-        config_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        config_container.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         
         # IMAP服务器
         tk.Label(
             config_container,
             text="IMAP服务器:",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['text_primary'],
             anchor='w'
-        ).pack(fill=tk.X, pady=(0, 2))
+        ).pack(fill=tk.X, pady=(0, SIZES['padding_xs']))
         
         self.imap_server_var = tk.StringVar()
         imap_entry = tk.Entry(
             config_container,
             textvariable=self.imap_server_var,
-            font=FONTS['default'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='sunken',
-            bd=1
+            **STYLES['entry']
         )
-        imap_entry.pack(fill=tk.X, pady=(0, 10))
+        imap_entry.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         # 邮箱地址
         tk.Label(
             config_container,
             text="邮箱地址:",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['text_primary'],
             anchor='w'
-        ).pack(fill=tk.X, pady=(0, 2))
+        ).pack(fill=tk.X, pady=(0, SIZES['padding_xs']))
         
         self.email_address_var = tk.StringVar()
         email_entry = tk.Entry(
             config_container,
             textvariable=self.email_address_var,
-            font=FONTS['default'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='sunken',
-            bd=1
+            **STYLES['entry']
         )
-        email_entry.pack(fill=tk.X, pady=(0, 10))
+        email_entry.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         # 授权码
         tk.Label(
             config_container,
             text="授权码:",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['text_primary'],
             anchor='w'
-        ).pack(fill=tk.X, pady=(0, 2))
+        ).pack(fill=tk.X, pady=(0, SIZES['padding_xs']))
         
         self.email_password_var = tk.StringVar()
         password_entry = tk.Entry(
             config_container,
             textvariable=self.email_password_var,
-            font=FONTS['default'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='sunken',
-            bd=1,
-            show='*'
+            show='*',
+            **STYLES['entry']
         )
-        password_entry.pack(fill=tk.X, pady=(0, 10))
+        password_entry.pack(fill=tk.X, pady=(0, SIZES['padding_medium']))
         
         # 超时时间
         tk.Label(
             config_container,
             text="超时时间(秒):",
-            font=FONTS['default'],
+            font=FONTS['body'],
             bg=COLORS['bg_primary'],
             fg=COLORS['text_primary'],
             anchor='w'
-        ).pack(fill=tk.X, pady=(0, 2))
+        ).pack(fill=tk.X, pady=(0, SIZES['padding_xs']))
         
         self.email_timeout_var = tk.StringVar()
         timeout_entry = tk.Entry(
             config_container,
             textvariable=self.email_timeout_var,
-            font=FONTS['default'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='sunken',
-            bd=1
+            **STYLES['entry']
         )
-        timeout_entry.pack(fill=tk.X, pady=(0, 15))
+        timeout_entry.pack(fill=tk.X, pady=(0, SIZES['padding_large']))
         
         # 测试连接按钮
         test_email_btn = tk.Button(
             config_container,
             text=f"{ICONS['test']} 测试连接",
-            font=FONTS['default'],
-            bg=COLORS['info'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
+            **STYLES['button_secondary'],
             command=self.test_email_connection
         )
         test_email_btn.pack(anchor='w')
@@ -207,18 +183,14 @@ class ConfigFrame(tk.Frame):
         """创建Cloudflare配置区域"""
         frame = tk.LabelFrame(
             parent,
-            text=f"{ICONS['cloudflare']} Cloudflare配置",
-            font=FONTS['subheading'],
-            bg=COLORS['bg_primary'],
-            fg=COLORS['text_primary'],
-            relief='groove',
-            bd=2
+            text=f" {ICONS['cloudflare']} Cloudflare配置",
+            **STYLES['label_frame']
         )
         frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         # 配置容器
         config_container = tk.Frame(frame, bg=COLORS['bg_primary'])
-        config_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        config_container.pack(fill=tk.BOTH, expand=True, padx=SIZES['padding_large'], pady=SIZES['padding_large'])
         
         # API密钥
         tk.Label(
@@ -747,60 +719,40 @@ class ConfigFrame(tk.Frame):
     def create_button_section(self):
         """创建按钮区域"""
         button_frame = tk.Frame(self.scrollable_frame, bg=COLORS['bg_primary'])
-        button_frame.pack(fill=tk.X, padx=SIZES['padding_large'], pady=(0, SIZES['padding_large']))
+        button_frame.pack(fill=tk.X, padx=SIZES['padding_xl'], pady=(0, SIZES['padding_xl']))
         
         # 保存配置按钮
         save_btn = tk.Button(
             button_frame,
             text=f"{ICONS['save']} 保存配置",
-            font=FONTS['default'],
-            bg=COLORS['success'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
-            padx=20,
+            **STYLES['button_success'],
             command=self.save_config
         )
-        save_btn.pack(side=tk.LEFT, padx=(0, 10))
+        save_btn.pack(side=tk.LEFT, padx=(0, SIZES['padding_medium']))
         
         # 重置默认按钮
         reset_btn = tk.Button(
             button_frame,
             text=f"{ICONS['refresh']} 重置默认",
-            font=FONTS['default'],
-            bg=COLORS['warning'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
-            padx=20,
+            **STYLES['button_warning'],
             command=self.reset_config
         )
-        reset_btn.pack(side=tk.LEFT, padx=(0, 10))
+        reset_btn.pack(side=tk.LEFT, padx=(0, SIZES['padding_medium']))
         
         # 导入配置按钮
         import_btn = tk.Button(
             button_frame,
             text=f"{ICONS['import']} 导入配置",
-            font=FONTS['default'],
-            bg=COLORS['info'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
-            padx=20,
+            **STYLES['button_secondary'],
             command=self.import_config
         )
-        import_btn.pack(side=tk.LEFT, padx=(0, 10))
+        import_btn.pack(side=tk.LEFT, padx=(0, SIZES['padding_medium']))
         
         # 导出配置按钮
         export_btn = tk.Button(
             button_frame,
             text=f"{ICONS['export']} 导出配置",
-            font=FONTS['default'],
-            bg=COLORS['primary'],
-            fg=COLORS['text_light'],
-            relief='raised',
-            bd=2,
-            padx=20,
+            **STYLES['button_primary'],
             command=self.export_config
         )
         export_btn.pack(side=tk.LEFT)
