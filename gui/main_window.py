@@ -15,6 +15,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from gui.resources.styles import COLORS, FONTS, SIZES, ICONS, STYLES
 from gui.components.dashboard import DashboardFrame
 from gui.components.config_panel import ConfigFrame
+from gui.components.proxy_manager import ProxyManagerFrame
+from gui.components.batch_register import BatchRegisterFrame
+from gui.components.log_viewer import LogViewerFrame
 
 
 class MainApplication:
@@ -162,38 +165,18 @@ class MainApplication:
         # 仪表板页面
         self.pages["dashboard"] = DashboardFrame(self.content_frame)
         
+        # 代理管理页面
+        self.pages["proxy"] = ProxyManagerFrame(self.content_frame)
+        
         # 配置设置页面
         self.pages["config"] = ConfigFrame(self.content_frame)
         
-        # 其他页面暂时用占位符
-        for page_id in ["proxy", "batch", "logs"]:
-            placeholder = tk.Frame(self.content_frame, bg=COLORS['bg_primary'])
-            
-            # 创建居中容器
-            center_frame = tk.Frame(placeholder, bg=COLORS['bg_primary'])
-            center_frame.pack(expand=True, fill=tk.BOTH)
-            
-            # 图标和文字
-            icon_label = tk.Label(
-                center_frame,
-                text=ICONS.get(page_id, '🔧'),
-                font=(FONTS['title'][0], 48),
-                bg=COLORS['bg_primary'],
-                fg=COLORS['text_muted']
-            )
-            icon_label.pack(expand=True, pady=(0, SIZES['padding_medium']))
-            
-            text_label = tk.Label(
-                center_frame,
-                text=f"{page_id.title()} 页面正在开发中...",
-                font=FONTS['heading'],
-                bg=COLORS['bg_primary'],
-                fg=COLORS['text_secondary']
-            )
-            text_label.pack(expand=True, pady=(0, SIZES['padding_xl']))
-            
-            self.pages[page_id] = placeholder
-            
+        # 批量注册页面
+        self.pages["batch"] = BatchRegisterFrame(self.content_frame)
+        
+        # 日志查看页面
+        self.pages["logs"] = LogViewerFrame(self.content_frame)
+        
     def switch_tab(self, tab_id):
         """切换标签页"""
         if tab_id not in self.pages:
