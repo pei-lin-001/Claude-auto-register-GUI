@@ -18,3 +18,9 @@ xpath_map.py
 utils/config.py
 logs/
 cookies.json
+
+# 敏感信息文件
+sessionKey.txt
+sessionKey-phone.txt
+*.session
+*.key
