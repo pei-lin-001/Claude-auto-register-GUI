@@ -116,6 +116,7 @@ def initChrome(x, y):  # 初始化 浏览器
 
 
 def startMain(x, y):
+    """单次注册 - 使用传统方法"""
     _mail = getOneMail()
     # _mail = "xxx"
     _chrome = initChrome(x, y)
@@ -180,4 +181,80 @@ def startMain(x, y):
         logger.error("获取邮箱跳转连接获取失败")
 
 
-startMain(0, 0)
+def startMainSmart(count=1, interval=30, x=0, y=0):
+    """智能批量注册 - 使用智能自动化引擎"""
+    try:
+        logger.info(f"🚀 开始智能批量注册，数量: {count}, 间隔: {interval}秒")
+
+        # 使用智能注册引擎
+        from gui.register_engine import ClaudeRegisterEngine
+
+        def console_callback(message, level="info"):
+            """控制台回调函数"""
+            if level == "info":
+                logger.info(f"🔧 {message}")
+            elif level == "warning":
+                logger.warning(f"⚠️ {message}")
+            elif level == "error":
+                logger.error(f"❌ {message}")
+            elif level == "debug":
+                logger.debug(f"🔍 {message}")
+
+        # 创建智能注册引擎
+        engine = ClaudeRegisterEngine(callback=console_callback)
+        logger.info("✅ 智能注册引擎初始化完成")
+
+        # 执行批量注册
+        results = engine.register_multiple_accounts(count, interval, x, y)
+
+        # 统计结果
+        success_count = sum(1 for result in results if result["success"])
+        fail_count = len(results) - success_count
+
+        logger.info(f"📊 批量注册完成")
+        logger.info(f"✅ 成功: {success_count}/{len(results)}")
+        logger.info(f"❌ 失败: {fail_count}/{len(results)}")
+
+        # 详细结果
+        for result in results:
+            status = "✅" if result["success"] else "❌"
+            logger.info(f"{status} 账号 {result['index']}: {result['email']} - {result['message']}")
+
+        return results
+
+    except Exception as e:
+        logger.error(f"💥 智能注册流程出错: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Claude自动注册工具')
+    parser.add_argument('--mode', choices=['single', 'batch'], default='single',
+                       help='运行模式: single(单次注册) 或 batch(批量注册)')
+    parser.add_argument('--count', type=int, default=1, help='批量注册数量')
+    parser.add_argument('--interval', type=int, default=30, help='注册间隔时间(秒)')
+    parser.add_argument('--x', type=int, default=0, help='浏览器窗口X坐标')
+    parser.add_argument('--y', type=int, default=0, help='浏览器窗口Y坐标')
+    parser.add_argument('--smart', action='store_true', help='使用智能自动化引擎')
+
+    args = parser.parse_args()
+
+    if args.mode == 'single':
+        if args.smart:
+            logger.info("🤖 使用智能引擎进行单次注册")
+            startMainSmart(1, 0, args.x, args.y)
+        else:
+            logger.info("🔧 使用传统方法进行单次注册")
+            startMain(args.x, args.y)
+    else:
+        if args.smart:
+            logger.info(f"🤖 使用智能引擎进行批量注册: {args.count}个账号")
+            startMainSmart(args.count, args.interval, args.x, args.y)
+        else:
+            logger.info("❌ 传统方法不支持批量注册，请使用 --smart 参数")
+            print("提示: 使用 --smart 参数启用智能批量注册功能")
+            print("示例: python main.py --mode batch --count 5 --interval 60 --smart")

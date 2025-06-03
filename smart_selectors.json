@@ -1,0 +1,301 @@
+{
+  "version": "2.0",
+  "description": "智能选择器配置 - 支持多种定位策略和优先级",
+  "selectors": {
+    "email_input": {
+      "description": "邮箱输入框",
+      "strategies": [
+        {
+          "by": "xpath",
+          "value": "//input[@type='email']",
+          "priority": 1,
+          "name": "标准邮箱输入框",
+          "timeout": 15
+        },
+        {
+          "by": "xpath", 
+          "value": "//input[contains(@placeholder, 'email') or contains(@placeholder, 'Email') or contains(@placeholder, '邮箱')]",
+          "priority": 2,
+          "name": "占位符邮箱输入框",
+          "timeout": 10
+        },
+        {
+          "by": "css",
+          "value": "form input[type='email'], form input[placeholder*='email']",
+          "priority": 3,
+          "name": "CSS邮箱输入框",
+          "timeout": 10
+        },
+        {
+          "by": "xpath",
+          "value": "/html/body/div[2]/div/div[1]/main/div[1]/div/div[2]/div/div[1]/div/form/input",
+          "priority": 9,
+          "name": "绝对路径邮箱输入框",
+          "timeout": 5
+        }
+      ]
+    },
+    "continue_button": {
+      "description": "继续/下一步按钮",
+      "strategies": [
+        {
+          "by": "xpath",
+          "value": "//button[contains(text(), 'Continue') or contains(text(), '继续') or contains(text(), 'Next') or contains(text(), '下一步')]",
+          "priority": 1,
+          "name": "文本继续按钮",
+          "timeout": 15
+        },
+        {
+          "by": "xpath",
+          "value": "//button[@type='submit']",
+          "priority": 2,
+          "name": "提交按钮",
+          "timeout": 10
+        },
+        {
+          "by": "css",
+          "value": "button[type='submit'], .btn-primary, .continue-btn",
+          "priority": 3,
+          "name": "CSS继续按钮",
+          "timeout": 10
+        },
+        {
+          "by": "xpath",
+          "value": "/html/body/div[2]/div/div[1]/main/div[1]/div/div[2]/div/div[1]/div/form/button",
+          "priority": 9,
+          "name": "绝对路径继续按钮",
+          "timeout": 5
+        }
+      ]
+    },
+    "age_verification": {
+      "description": "年龄验证页面元素",
+      "strategies": [
+        {
+          "by": "xpath",
+          "value": "//div[contains(text(), 'year') or contains(text(), '年') or contains(text(), 'age') or contains(text(), '年龄')]",
+          "priority": 1,
+          "name": "年龄文本元素",
+          "timeout": 20
+        },
+        {
+          "by": "xpath",
+          "value": "//label[contains(text(), '18') or contains(text(), 'adult')]",
+          "priority": 2,
+          "name": "成年标签",
+          "timeout": 15
+        },
+        {
+          "by": "css",
+          "value": ".age-verification, .birth-year, .adult-confirmation",
+          "priority": 3,
+          "name": "CSS年龄验证",
+          "timeout": 10
+        },
+        {
+          "by": "xpath",
+          "value": "/html/body/main/div/div/form/div/label[2]/div/div",
+          "priority": 9,
+          "name": "绝对路径年龄验证",
+          "timeout": 5
+        }
+      ]
+    },
+    "phone_checkbox": {
+      "description": "手机版复选框",
+      "strategies": [
+        {
+          "by": "xpath",
+          "value": "//input[@type='checkbox' and (contains(@name, 'phone') or contains(@id, 'phone') or contains(@class, 'phone'))]",
+          "priority": 1,
+          "name": "手机复选框",
+          "timeout": 15
+        },
+        {
+          "by": "xpath",
+          "value": "//input[@type='checkbox'][contains(following-sibling::text() | following-sibling::*/text(), 'phone') or contains(preceding-sibling::text() | preceding-sibling::*/text(), 'phone')]",
+          "priority": 2,
+          "name": "手机文本复选框",
+          "timeout": 10
+        },
+        {
+          "by": "css",
+          "value": "input[type='checkbox'][name*='phone'], input[type='checkbox'][id*='phone']",
+          "priority": 3,
+          "name": "CSS手机复选框",
+          "timeout": 10
+        },
+        {
+          "by": "xpath",
+          "value": "/html/body/main/div/div/form/div[1]/div/div/input",
+          "priority": 9,
+          "name": "绝对路径手机复选框",
+          "timeout": 5
+        }
+      ]
+    },
+    "loading_indicator": {
+      "description": "加载指示器",
+      "strategies": [
+        {
+          "by": "css",
+          "value": ".loading, .spinner, .loader, [class*='loading'], [class*='spinner']",
+          "priority": 1,
+          "name": "CSS加载指示器",
+          "timeout": 5
+        },
+        {
+          "by": "xpath",
+          "value": "//*[contains(@class, 'loading') or contains(@class, 'spinner') or contains(@class, 'loader')]",
+          "priority": 2,
+          "name": "XPath加载指示器",
+          "timeout": 5
+        }
+      ]
+    },
+    "error_message": {
+      "description": "错误消息",
+      "strategies": [
+        {
+          "by": "css",
+          "value": ".error, .alert-danger, .error-message, [class*='error']",
+          "priority": 1,
+          "name": "CSS错误消息",
+          "timeout": 5
+        },
+        {
+          "by": "xpath",
+          "value": "//*[contains(@class, 'error') or contains(text(), 'error') or contains(text(), '错误')]",
+          "priority": 2,
+          "name": "XPath错误消息",
+          "timeout": 5
+        }
+      ]
+    },
+    "success_indicator": {
+      "description": "成功指示器",
+      "strategies": [
+        {
+          "by": "css",
+          "value": ".success, .alert-success, .checkmark, [class*='success']",
+          "priority": 1,
+          "name": "CSS成功指示器",
+          "timeout": 10
+        },
+        {
+          "by": "xpath",
+          "value": "//*[contains(@class, 'success') or contains(text(), 'success') or contains(text(), '成功')]",
+          "priority": 2,
+          "name": "XPath成功指示器",
+          "timeout": 10
+        }
+      ]
+    },
+    "captcha": {
+      "description": "验证码元素",
+      "strategies": [
+        {
+          "by": "css",
+          "value": ".captcha, .recaptcha, [class*='captcha'], iframe[src*='recaptcha']",
+          "priority": 1,
+          "name": "CSS验证码",
+          "timeout": 10
+        },
+        {
+          "by": "xpath",
+          "value": "//*[contains(@class, 'captcha') or contains(@src, 'captcha') or contains(@src, 'recaptcha')]",
+          "priority": 2,
+          "name": "XPath验证码",
+          "timeout": 10
+        }
+      ]
+    },
+    "modal_dialog": {
+      "description": "模态对话框",
+      "strategies": [
+        {
+          "by": "css",
+          "value": ".modal, .dialog, .popup, [role='dialog']",
+          "priority": 1,
+          "name": "CSS模态框",
+          "timeout": 10
+        },
+        {
+          "by": "xpath",
+          "value": "//*[@role='dialog' or contains(@class, 'modal') or contains(@class, 'dialog')]",
+          "priority": 2,
+          "name": "XPath模态框",
+          "timeout": 10
+        }
+      ]
+    },
+    "close_button": {
+      "description": "关闭按钮",
+      "strategies": [
+        {
+          "by": "xpath",
+          "value": "//button[contains(text(), 'Close') or contains(text(), '关闭') or contains(text(), '×')]",
+          "priority": 1,
+          "name": "文本关闭按钮",
+          "timeout": 5
+        },
+        {
+          "by": "css",
+          "value": ".close, .btn-close, [aria-label='Close']",
+          "priority": 2,
+          "name": "CSS关闭按钮",
+          "timeout": 5
+        }
+      ]
+    }
+  },
+  "page_patterns": {
+    "login_page": {
+      "indicators": [
+        "//input[@type='email']",
+        "//button[contains(text(), 'Continue')]",
+        "//*[contains(text(), 'Sign in') or contains(text(), '登录')]"
+      ],
+      "description": "登录页面"
+    },
+    "verification_page": {
+      "indicators": [
+        "//*[contains(text(), 'year') or contains(text(), '年龄')]",
+        "//input[@type='checkbox']",
+        "//*[contains(text(), 'verification') or contains(text(), '验证')]"
+      ],
+      "description": "验证页面"
+    },
+    "success_page": {
+      "indicators": [
+        "//*[contains(text(), 'Welcome') or contains(text(), '欢迎')]",
+        "//*[contains(text(), 'success') or contains(text(), '成功')]",
+        "//div[contains(@class, 'dashboard') or contains(@class, 'main')]"
+      ],
+      "description": "成功页面"
+    },
+    "error_page": {
+      "indicators": [
+        "//*[contains(text(), 'Error') or contains(text(), '错误')]",
+        "//*[contains(text(), 'failed') or contains(text(), '失败')]",
+        "//div[contains(@class, 'error')]"
+      ],
+      "description": "错误页面"
+    }
+  },
+  "retry_config": {
+    "max_retries": 3,
+    "retry_delay": 1.0,
+    "exponential_backoff": true,
+    "screenshot_on_failure": true
+  },
+  "timing_config": {
+    "default_timeout": 30,
+    "short_timeout": 5,
+    "long_timeout": 60,
+    "human_delay_min": 1.0,
+    "human_delay_max": 3.0,
+    "typing_delay_min": 0.05,
+    "typing_delay_max": 0.15
+  }
+}

@@ -159,43 +159,80 @@ class ClaudeRegisterEngine:
             return {}
             
     def fill_registration_form(self, chrome, email):
-        """填写注册表单"""
+        """填写注册表单 - 使用智能自动化"""
         try:
+            # 导入智能自动化模块
+            from chrome_bot.smart_automation import ClaudeAutomationEngine
+
+            self.log_and_callback("正在初始化智能自动化引擎...")
+            automation = ClaudeAutomationEngine(chrome, self.logger)
+
+            # 获取页面信息
+            page_info = automation.get_page_info()
+            self.log_and_callback(f"当前页面: {page_info.get('title', 'Unknown')}")
+
+            # 使用智能填写表单
+            self.log_and_callback("正在智能填写注册表单...")
+            success = automation.fill_email_form(email)
+
+            if success:
+                self.log_and_callback(f"成功填写邮箱表单: {email}")
+
+                # 等待页面跳转或状态变化
+                current_url = chrome.current_url
+                if automation.wait_for_page_change(current_url, timeout=15):
+                    self.log_and_callback("页面已跳转，表单提交成功")
+                else:
+                    self.log_and_callback("页面未跳转，但表单可能已提交", "warning")
+
+                return True
+            else:
+                self.log_and_callback("智能填写表单失败，尝试备用方案", "warning")
+                return self._fallback_fill_form(chrome, email)
+
+        except Exception as e:
+            self.log_and_callback(f"智能填写表单时出错: {str(e)}", "error")
+            return self._fallback_fill_form(chrome, email)
+
+    def _fallback_fill_form(self, chrome, email):
+        """备用表单填写方案"""
+        try:
+            self.log_and_callback("使用备用方案填写表单...")
+
             dom_list = self.get_dom_list()
             if not dom_list:
                 return False
-                
-            self.log_and_callback("正在填写注册表单...")
-            
+
             # 等待邮箱输入框
             mail_input = wait_for_element(chrome, By.XPATH, dom_list["mailInput"], timeout=30)
             if mail_input is None:
-                self.log_and_callback("未找到邮箱输入框", "error")
+                self.log_and_callback("备用方案：未找到邮箱输入框", "error")
                 return False
-                
+
             # 输入邮箱
+            mail_input.clear()
             mail_input.send_keys(email)
-            self.log_and_callback(f"已输入邮箱: {email}")
-            
+            self.log_and_callback(f"备用方案：已输入邮箱: {email}")
+
             # 随机等待
             wait_time = random.randint(2, 5)
             self.log_and_callback(f"等待 {wait_time} 秒...")
             time.sleep(wait_time)
-            
+
             # 点击下一步按钮
             next_button = wait_for_element_clickable(
                 chrome, By.XPATH, dom_list["nextMailButton"], timeout=30
             )
             if next_button is None:
-                self.log_and_callback("未找到下一步按钮", "error")
+                self.log_and_callback("备用方案：未找到下一步按钮", "error")
                 return False
-                
+
             next_button.click()
-            self.log_and_callback("已点击下一步按钮")
+            self.log_and_callback("备用方案：已点击下一步按钮")
             return True
-            
+
         except Exception as e:
-            self.log_and_callback(f"填写注册表单时出错: {str(e)}", "error")
+            self.log_and_callback(f"备用方案填写表单时出错: {str(e)}", "error")
             return False
             
     def get_verification_link(self, email):
@@ -220,43 +257,93 @@ class ClaudeRegisterEngine:
             return None
             
     def complete_verification(self, chrome, verification_link):
-        """完成邮箱验证"""
+        """完成邮箱验证 - 使用智能自动化"""
         try:
             self.log_and_callback("正在完成邮箱验证...")
-            
+
             # 跳转到验证链接
             chrome.get(verification_link)
-            
+
+            # 导入智能自动化模块
+            from chrome_bot.smart_automation import ClaudeAutomationEngine
+
+            automation = ClaudeAutomationEngine(chrome, self.logger)
+
+            # 等待页面加载
+            if not automation.locator.wait_for_page_load(timeout=30):
+                self.log_and_callback("验证页面加载超时", "warning")
+
+            # 获取页面信息
+            page_info = automation.get_page_info()
+            self.log_and_callback(f"验证页面: {page_info.get('title', 'Unknown')}")
+
+            # 智能处理验证页面
+            verification_success = automation.handle_verification_page()
+
+            if verification_success:
+                self.log_and_callback("智能验证页面处理成功")
+            else:
+                self.log_and_callback("智能验证失败，使用备用方案", "warning")
+                verification_success = self._fallback_verification(chrome)
+
+            if verification_success:
+                # 获取并保存Cookie
+                cookies = CookieManager.get_all_cookies(chrome)
+                cookie_count = CookieManager.save_cookies(cookies)
+                self.log_and_callback(f"成功保存 {cookie_count} 个Cookie")
+
+                # 保存SessionKey
+                CookieManager.save_session_key(cookies, is_phone=verification_success == "phone")
+                session_type = "手机版" if verification_success == "phone" else "桌面版"
+                self.log_and_callback(f"已保存{session_type}SessionKey")
+
+                # 截图保存
+                screenshot_path = automation.take_screenshot("verification_success.png")
+                if screenshot_path:
+                    self.log_and_callback(f"验证成功截图: {screenshot_path}")
+
+                self.log_and_callback("邮箱验证完成")
+                return True
+            else:
+                # 失败时也截图
+                automation.take_screenshot("verification_failed.png")
+                return False
+
+        except Exception as e:
+            self.log_and_callback(f"完成邮箱验证时出错: {str(e)}", "error")
+            return False
+
+    def _fallback_verification(self, chrome):
+        """备用验证方案"""
+        try:
+            self.log_and_callback("使用备用验证方案...")
+
             dom_list = self.get_dom_list()
             if not dom_list:
                 return False
-                
+
             # 等待验证页面加载
             jump_page_years = wait_for_element(chrome, By.XPATH, dom_list["jumpPageYears"], timeout=30)
             if jump_page_years is None:
-                self.log_and_callback("验证页面加载失败", "error")
+                self.log_and_callback("备用方案：验证页面加载失败", "error")
                 return False
-                
-            # 获取并保存Cookie
-            cookies = CookieManager.get_all_cookies(chrome)
-            cookie_count = CookieManager.save_cookies(cookies)
-            self.log_and_callback(f"成功保存 {cookie_count} 个Cookie")
-            
+
             # 检查是否为手机版本
             is_phone = wait_for_element(chrome, By.XPATH, dom_list["isPheon"], timeout=10)
             if is_phone is not None:
-                is_phone.click()
-                CookieManager.save_session_key(cookies, is_phone=True)
-                self.log_and_callback("已保存手机版SessionKey")
+                try:
+                    is_phone.click()
+                    self.log_and_callback("备用方案：已点击手机版复选框")
+                    return "phone"
+                except Exception as e:
+                    self.log_and_callback(f"备用方案：点击手机版复选框失败: {str(e)}", "warning")
+                    return True
             else:
-                CookieManager.save_session_key(cookies, is_phone=False)
-                self.log_and_callback("已保存桌面版SessionKey")
-                
-            self.log_and_callback("邮箱验证完成")
-            return True
-            
+                self.log_and_callback("备用方案：未发现手机版复选框，使用桌面版")
+                return True
+
         except Exception as e:
-            self.log_and_callback(f"完成邮箱验证时出错: {str(e)}", "error")
+            self.log_and_callback(f"备用验证方案失败: {str(e)}", "error")
             return False
             
     def register_single_account(self, x=0, y=0):

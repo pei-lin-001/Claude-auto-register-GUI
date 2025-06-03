@@ -1,0 +1,245 @@
+{
+  "version": "2.0",
+  "total_selectors": 10,
+  "total_strategies": 28,
+  "by_type_count": {
+    "xpath": 18,
+    "css": 10
+  },
+  "priority_distribution": {
+    "1": 10,
+    "2": 10,
+    "3": 4,
+    "9": 4
+  },
+  "selector_details": {
+    "email_input": {
+      "description": "邮箱输入框",
+      "strategy_count": 4,
+      "strategies": [
+        {
+          "name": "标准邮箱输入框",
+          "by": "xpath",
+          "priority": 1,
+          "timeout": 15
+        },
+        {
+          "name": "占位符邮箱输入框",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 10
+        },
+        {
+          "name": "CSS邮箱输入框",
+          "by": "css",
+          "priority": 3,
+          "timeout": 10
+        },
+        {
+          "name": "绝对路径邮箱输入框",
+          "by": "xpath",
+          "priority": 9,
+          "timeout": 5
+        }
+      ]
+    },
+    "continue_button": {
+      "description": "继续/下一步按钮",
+      "strategy_count": 4,
+      "strategies": [
+        {
+          "name": "文本继续按钮",
+          "by": "xpath",
+          "priority": 1,
+          "timeout": 15
+        },
+        {
+          "name": "提交按钮",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 10
+        },
+        {
+          "name": "CSS继续按钮",
+          "by": "css",
+          "priority": 3,
+          "timeout": 10
+        },
+        {
+          "name": "绝对路径继续按钮",
+          "by": "xpath",
+          "priority": 9,
+          "timeout": 5
+        }
+      ]
+    },
+    "age_verification": {
+      "description": "年龄验证页面元素",
+      "strategy_count": 4,
+      "strategies": [
+        {
+          "name": "年龄文本元素",
+          "by": "xpath",
+          "priority": 1,
+          "timeout": 20
+        },
+        {
+          "name": "成年标签",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 15
+        },
+        {
+          "name": "CSS年龄验证",
+          "by": "css",
+          "priority": 3,
+          "timeout": 10
+        },
+        {
+          "name": "绝对路径年龄验证",
+          "by": "xpath",
+          "priority": 9,
+          "timeout": 5
+        }
+      ]
+    },
+    "phone_checkbox": {
+      "description": "手机版复选框",
+      "strategy_count": 4,
+      "strategies": [
+        {
+          "name": "手机复选框",
+          "by": "xpath",
+          "priority": 1,
+          "timeout": 15
+        },
+        {
+          "name": "手机文本复选框",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 10
+        },
+        {
+          "name": "CSS手机复选框",
+          "by": "css",
+          "priority": 3,
+          "timeout": 10
+        },
+        {
+          "name": "绝对路径手机复选框",
+          "by": "xpath",
+          "priority": 9,
+          "timeout": 5
+        }
+      ]
+    },
+    "loading_indicator": {
+      "description": "加载指示器",
+      "strategy_count": 2,
+      "strategies": [
+        {
+          "name": "CSS加载指示器",
+          "by": "css",
+          "priority": 1,
+          "timeout": 5
+        },
+        {
+          "name": "XPath加载指示器",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 5
+        }
+      ]
+    },
+    "error_message": {
+      "description": "错误消息",
+      "strategy_count": 2,
+      "strategies": [
+        {
+          "name": "CSS错误消息",
+          "by": "css",
+          "priority": 1,
+          "timeout": 5
+        },
+        {
+          "name": "XPath错误消息",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 5
+        }
+      ]
+    },
+    "success_indicator": {
+      "description": "成功指示器",
+      "strategy_count": 2,
+      "strategies": [
+        {
+          "name": "CSS成功指示器",
+          "by": "css",
+          "priority": 1,
+          "timeout": 10
+        },
+        {
+          "name": "XPath成功指示器",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 10
+        }
+      ]
+    },
+    "captcha": {
+      "description": "验证码元素",
+      "strategy_count": 2,
+      "strategies": [
+        {
+          "name": "CSS验证码",
+          "by": "css",
+          "priority": 1,
+          "timeout": 10
+        },
+        {
+          "name": "XPath验证码",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 10
+        }
+      ]
+    },
+    "modal_dialog": {
+      "description": "模态对话框",
+      "strategy_count": 2,
+      "strategies": [
+        {
+          "name": "CSS模态框",
+          "by": "css",
+          "priority": 1,
+          "timeout": 10
+        },
+        {
+          "name": "XPath模态框",
+          "by": "xpath",
+          "priority": 2,
+          "timeout": 10
+        }
+      ]
+    },
+    "close_button": {
+      "description": "关闭按钮",
+      "strategy_count": 2,
+      "strategies": [
+        {
+          "name": "文本关闭按钮",
+          "by": "xpath",
+          "priority": 1,
+          "timeout": 5
+        },
+        {
+          "name": "CSS关闭按钮",
+          "by": "css",
+          "priority": 2,
+          "timeout": 5
+        }
+      ]
+    }
+  }
+}
