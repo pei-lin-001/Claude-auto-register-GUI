@@ -1,0 +1,355 @@
+"""
+注册引擎模块
+
+集成实际的Claude注册逻辑，提供给现代化GUI使用
+"""
+
+import sys
+import os
+import time
+import random
+import string
+import logging
+from datetime import datetime
+
+# 添加项目根目录到路径
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from mail import QQMail
+from cloudflare import mailCloud
+from chrome_bot import chromeBot
+from selenium.webdriver.common.by import By
+from chrome_bot.insbot import wait_for_element, wait_for_element_clickable
+import json
+from utils.config import config
+from utils.cookie_utils import CookieManager
+from utils.proxy_manager import ProxyManager
+
+
+class ClaudeRegisterEngine:
+    """Claude注册引擎"""
+    
+    def __init__(self, callback=None):
+        """
+        初始化注册引擎
+        
+        Args:
+            callback: 回调函数，用于更新UI状态
+        """
+        self.callback = callback
+        self.mail_cloud = mailCloud()
+        self.qq_mail = QQMail()
+        self.proxy_manager = ProxyManager(max_usage_count=3)
+        self.is_running = False
+        
+        # 设置日志
+        self.setup_logging()
+        
+    def setup_logging(self):
+        """设置日志记录"""
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        
+        # 创建文件处理器
+        log_file = time.strftime("./logs/%Y-%m-%d_%H-%M-%S.log", time.localtime())
+        os.makedirs("./logs", exist_ok=True)
+        
+        file_handler = logging.FileHandler(log_file, encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        
+        # 创建格式化器
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(formatter)
+        
+        # 添加处理器
+        self.logger.addHandler(file_handler)
+        
+    def log_and_callback(self, message, level="info"):
+        """记录日志并回调UI更新"""
+        # 记录到日志文件
+        if level == "info":
+            self.logger.info(message)
+        elif level == "warning":
+            self.logger.warning(message)
+        elif level == "error":
+            self.logger.error(message)
+        elif level == "debug":
+            self.logger.debug(message)
+            
+        # 回调UI更新
+        if self.callback:
+            self.callback(message, level)
+            
+    def generate_random_string(self, length=8):
+        """生成随机字符串"""
+        characters = string.ascii_letters + string.digits
+        return "".join(random.choice(characters) for _ in range(length))
+        
+    def create_temp_email(self):
+        """创建临时邮箱"""
+        try:
+            random_string = self.generate_random_string()
+            self.log_and_callback(f"正在创建临时邮箱: {random_string}@{config['cloudflare']['rules_domain']}")
+            
+            mail_result = self.mail_cloud.createEmailRules(random_string)
+            if mail_result["type"] == "True":
+                email = mail_result["mail"]
+                self.log_and_callback(f"临时邮箱创建成功: {email}")
+                return email
+            else:
+                self.log_and_callback(f"临时邮箱创建失败: {mail_result.get('msg', '未知错误')}", "error")
+                return None
+                
+        except Exception as e:
+            self.log_and_callback(f"创建临时邮箱时出错: {str(e)}", "error")
+            return None
+            
+    def init_chrome_browser(self, x=0, y=0):
+        """初始化Chrome浏览器"""
+        try:
+            self.log_and_callback("正在初始化Chrome浏览器...")
+            
+            bot = chromeBot()
+            proxy_details = self.proxy_manager.get_available_proxy()
+            
+            if proxy_details:
+                self.log_and_callback(f"使用代理: {proxy_details['proxy_string']}")
+            else:
+                self.log_and_callback("未使用代理", "warning")
+                
+            chrome = bot.createWebView(proxy_details=proxy_details)
+            
+            if chrome is None:
+                self.log_and_callback("Chrome浏览器初始化失败", "error")
+                return None
+                
+            # 访问Claude网站
+            self.log_and_callback("正在访问Claude.ai...")
+            chrome.get("https://claude.ai")
+            chrome.set_window_position(x, y)
+            
+            # 记录代理使用
+            if proxy_details:
+                self.proxy_manager.record_proxy_usage(
+                    proxy_details["proxy_string"], 
+                    proxy_details["file_path"]
+                )
+                
+                stats = self.proxy_manager.get_proxy_statistics()
+                self.log_and_callback(
+                    f"代理统计: 总计 {stats['total_proxies']} 个，"
+                    f"活跃 {stats['active_proxies']} 个，"
+                    f"已耗尽 {stats['exhausted_proxies']} 个"
+                )
+                
+            self.log_and_callback("Chrome浏览器初始化成功")
+            return chrome
+            
+        except Exception as e:
+            self.log_and_callback(f"初始化Chrome浏览器时出错: {str(e)}", "error")
+            return None
+            
+    def get_dom_list(self):
+        """获取DOM元素列表"""
+        try:
+            with open("domList.json", "r", encoding="utf-8") as file:
+                return json.load(file)
+        except Exception as e:
+            self.log_and_callback(f"加载DOM列表失败: {str(e)}", "error")
+            return {}
+            
+    def fill_registration_form(self, chrome, email):
+        """填写注册表单"""
+        try:
+            dom_list = self.get_dom_list()
+            if not dom_list:
+                return False
+                
+            self.log_and_callback("正在填写注册表单...")
+            
+            # 等待邮箱输入框
+            mail_input = wait_for_element(chrome, By.XPATH, dom_list["mailInput"], timeout=30)
+            if mail_input is None:
+                self.log_and_callback("未找到邮箱输入框", "error")
+                return False
+                
+            # 输入邮箱
+            mail_input.send_keys(email)
+            self.log_and_callback(f"已输入邮箱: {email}")
+            
+            # 随机等待
+            wait_time = random.randint(2, 5)
+            self.log_and_callback(f"等待 {wait_time} 秒...")
+            time.sleep(wait_time)
+            
+            # 点击下一步按钮
+            next_button = wait_for_element_clickable(
+                chrome, By.XPATH, dom_list["nextMailButton"], timeout=30
+            )
+            if next_button is None:
+                self.log_and_callback("未找到下一步按钮", "error")
+                return False
+                
+            next_button.click()
+            self.log_and_callback("已点击下一步按钮")
+            return True
+            
+        except Exception as e:
+            self.log_and_callback(f"填写注册表单时出错: {str(e)}", "error")
+            return False
+            
+    def get_verification_link(self, email):
+        """获取验证链接"""
+        try:
+            self.log_and_callback("正在获取邮箱验证链接...")
+            
+            # 等待邮件到达
+            time.sleep(5)
+            
+            jump_url = self.qq_mail.getUserTo(email, config["mail"]["mail_password"])
+            
+            if jump_url["type"] != "error":
+                self.log_and_callback("验证链接获取成功")
+                return jump_url["link"]
+            else:
+                self.log_and_callback(f"验证链接获取失败: {jump_url['msg']}", "error")
+                return None
+                
+        except Exception as e:
+            self.log_and_callback(f"获取验证链接时出错: {str(e)}", "error")
+            return None
+            
+    def complete_verification(self, chrome, verification_link):
+        """完成邮箱验证"""
+        try:
+            self.log_and_callback("正在完成邮箱验证...")
+            
+            # 跳转到验证链接
+            chrome.get(verification_link)
+            
+            dom_list = self.get_dom_list()
+            if not dom_list:
+                return False
+                
+            # 等待验证页面加载
+            jump_page_years = wait_for_element(chrome, By.XPATH, dom_list["jumpPageYears"], timeout=30)
+            if jump_page_years is None:
+                self.log_and_callback("验证页面加载失败", "error")
+                return False
+                
+            # 获取并保存Cookie
+            cookies = CookieManager.get_all_cookies(chrome)
+            cookie_count = CookieManager.save_cookies(cookies)
+            self.log_and_callback(f"成功保存 {cookie_count} 个Cookie")
+            
+            # 检查是否为手机版本
+            is_phone = wait_for_element(chrome, By.XPATH, dom_list["isPheon"], timeout=10)
+            if is_phone is not None:
+                is_phone.click()
+                CookieManager.save_session_key(cookies, is_phone=True)
+                self.log_and_callback("已保存手机版SessionKey")
+            else:
+                CookieManager.save_session_key(cookies, is_phone=False)
+                self.log_and_callback("已保存桌面版SessionKey")
+                
+            self.log_and_callback("邮箱验证完成")
+            return True
+            
+        except Exception as e:
+            self.log_and_callback(f"完成邮箱验证时出错: {str(e)}", "error")
+            return False
+            
+    def register_single_account(self, x=0, y=0):
+        """注册单个账号"""
+        chrome = None
+        try:
+            self.log_and_callback("开始注册新账号")
+            
+            # 1. 创建临时邮箱
+            email = self.create_temp_email()
+            if not email:
+                return {"success": False, "message": "临时邮箱创建失败", "email": None}
+                
+            # 2. 初始化浏览器
+            chrome = self.init_chrome_browser(x, y)
+            if not chrome:
+                return {"success": False, "message": "浏览器初始化失败", "email": email}
+                
+            # 3. 填写注册表单
+            if not self.fill_registration_form(chrome, email):
+                return {"success": False, "message": "注册表单填写失败", "email": email}
+                
+            # 4. 获取验证链接
+            verification_link = self.get_verification_link(email)
+            if not verification_link:
+                return {"success": False, "message": "验证链接获取失败", "email": email}
+                
+            # 5. 完成验证
+            if not self.complete_verification(chrome, verification_link):
+                return {"success": False, "message": "邮箱验证失败", "email": email}
+                
+            self.log_and_callback("账号注册成功！")
+            return {"success": True, "message": "注册成功", "email": email}
+            
+        except Exception as e:
+            error_msg = f"注册过程中出现异常: {str(e)}"
+            self.log_and_callback(error_msg, "error")
+            return {"success": False, "message": error_msg, "email": None}
+            
+        finally:
+            # 清理浏览器资源
+            if chrome:
+                try:
+                    chrome.quit()
+                    self.log_and_callback("浏览器已关闭")
+                except:
+                    pass
+                    
+    def register_multiple_accounts(self, count, interval=30, x=0, y=0):
+        """批量注册账号"""
+        self.is_running = True
+        results = []
+        
+        try:
+            self.log_and_callback(f"开始批量注册 {count} 个账号")
+            
+            for i in range(count):
+                if not self.is_running:
+                    self.log_and_callback("注册已被停止")
+                    break
+                    
+                self.log_and_callback(f"正在注册第 {i+1}/{count} 个账号")
+                
+                # 注册单个账号
+                result = self.register_single_account(x, y)
+                results.append({
+                    "index": i + 1,
+                    "email": result.get("email", ""),
+                    "success": result["success"],
+                    "message": result["message"],
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
+                
+                # 间隔等待（除了最后一个）
+                if i < count - 1 and self.is_running:
+                    self.log_and_callback(f"等待 {interval} 秒后继续...")
+                    time.sleep(interval)
+                    
+            self.log_and_callback("批量注册完成")
+            return results
+            
+        except Exception as e:
+            self.log_and_callback(f"批量注册过程中出错: {str(e)}", "error")
+            return results
+            
+        finally:
+            self.is_running = False
+            
+    def stop_registration(self):
+        """停止注册"""
+        self.is_running = False
+        self.log_and_callback("正在停止注册...")
+        
+    def get_proxy_statistics(self):
+        """获取代理统计信息"""
+        return self.proxy_manager.get_proxy_statistics()
